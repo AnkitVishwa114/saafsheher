@@ -1314,3 +1314,21 @@ a.kpi:hover .k-ico { transform: rotate(-8deg) scale(1.08); }
 .birdie.bob:not(.fly) .head { animation: head-bob .45s ease-in-out; }
 @keyframes wing-stretch { 0%, 100% { transform: none; } 22% { transform: rotate(80deg); } 40% { transform: rotate(62deg); } 55% { transform: rotate(80deg); } 70% { transform: rotate(62deg); } }
 @keyframes head-bob { 25%, 75% { transform: translateY(-2.5px); } 50% { transform: none; } }
+
+/* header: never wrap, and tighten up on laptop-size screens */
+.nav-links a, .role-chip, .account-btn .who b, .site-header .btn-sm { white-space: nowrap; }
+.nav-links { flex-wrap: nowrap; min-width: 0; }
+.brand { flex: none; }
+@media (max-width: 1240px) {
+  .nav { gap: 22px; }
+  .nav-links { gap: 2px; }
+  .nav-links a { padding: 9px 10px; font-size: .95rem; }
+  .site-header .btn-sm { padding: 0 14px; }
+  .site-header .brand { font-size: 1.36rem; } .site-header .brand b { font-size: 1.46rem; }
+  .site-header .brand img { width: 40px; height: 40px; }
+}
+@media (max-width: 1060px) {
+  .account-btn .who { display: none; }
+  .account-btn { padding: 3px; }
+  .nav-links a { padding: 8px 8px; font-size: .92rem; }
+}

@@ -25,7 +25,7 @@
           {# PROFILE PILL: avatar with online dot + name + role chip; click opens the account menu below #}
           <button class="account-btn" type="button" aria-haspopup="true" aria-label="Account menu">
             <span class="ab-av">{% avatar user %}<i class="ab-dot"></i></span>
-            <span class="who"><b>{{ user.first_name|default:"Account" }}</b><span class="role-chip {% if user.is_admin_role %}admin{% endif %}"><i></i>{{ user.get_role_display }}</span></span>
+            <span class="who"><b>{{ user.first_name|default:"Account" }}</b><span class="role-chip {% if user.is_admin_role %}admin{% endif %}"><i></i>{% if user.is_admin_role %}Admin{% else %}Citizen{% endif %}</span></span>
             <span class="ab-chev hide-sm">{% icon "chevron-down" 14 %}</span>
           </button>
           <div class="menu" role="menu">
