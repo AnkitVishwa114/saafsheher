@@ -1,0 +1,34 @@
+{% extends "panel/base.html" %}
+{# PAGE: ADMIN: CATEGORIES | view: core/panel.py -> categories | form: CategoryForm | URL: /admin-panel/categories/ #}
+{% load ss %}
+{% block title %}Categories{% endblock %}
+{% block crumb %}Categories{% endblock %}
+{% block content %}
+<div class="page-head" style="padding-top:6px"><span class="kicker" data-reveal>Manage</span><h1 data-words>Categories</h1><p data-reveal>Types of problems citizens can report, each with its clean-up deadline (SLA).</p></div>
+<div class="grid g-side">
+  <div class="cat-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))" data-stagger=".05">
+    {% for cat in cats %}
+    <a href="{% url 'panel:category_edit' cat.pk %}" class="cat-card spot" style="--c:{{ cat.color }};{% if not cat.is_active %}opacity:.55{% endif %}">
+      <span class="sla">{{ cat.sla_hours }}h SLA</span>
+      <div class="ic lift3d">{% icon cat.icon 24 %}</div>
+      <div><h3>{{ cat.name }}</h3><p>{{ cat.n }} complaint{{ cat.n|pluralize }} · {{ cat.open }} open{% if not cat.is_active %} · hidden{% endif %}</p></div>
+    </a>
+    {% endfor %}
+  </div>
+  <div class="card sticky" data-reveal>
+    <div class="card-head"><h3>{% if obj %}{% icon "edit" 18 "text-brand" %} Edit {{ obj.name }}{% else %}{% icon "plus" 18 "text-brand" %} Add category{% endif %}</h3>{% if obj %}<a href="{% url 'panel:categories' %}" class="btn btn-ghost btn-sm">Cancel</a>{% endif %}</div>
+    <div class="card-body">
+      <form method="post" novalidate class="stack" style="gap:14px">{% csrf_token %}
+        {% include "partials/field.html" with f=form.name %}
+        {% include "partials/field.html" with f=form.slug %}
+        <div class="grid g2" style="gap:12px">{% include "partials/field.html" with f=form.sla_hours %}{% include "partials/field.html" with f=form.color %}</div>
+        {% include "partials/field.html" with f=form.icon %}
+        {% include "partials/field.html" with f=form.description %}
+        <label class="check-row">{{ form.is_active }} Show to citizens</label>
+        <button class="btn btn-brand btn-block" type="submit">{% if obj %}Save category{% else %}Add category{% endif %}</button>
+      </form>
+      <p class="tiny muted mt-2 mb-0">Icon names: trash, bin, droplet, flame, alert, bricks, toilet, broom, leaf, truck.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

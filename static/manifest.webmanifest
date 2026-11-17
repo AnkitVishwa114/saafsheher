@@ -1,0 +1,11 @@
+{
+  "name": "SaafShehar – Kachra Shikayat",
+  "short_name": "SaafShehar",
+  "description": "Photo kheencho, shehar saaf karo. Report garbage and track the clean-up.",
+  "start_url": "/dashboard/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0F7A56",
+  "icons": [{ "src": "/static/img/logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

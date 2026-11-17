@@ -1,0 +1,33 @@
+{% extends "panel/base.html" %}
+{# PAGE: ADMIN: CITIZENS (block / unblock) | view: core/panel.py -> users, user_toggle | URL: /admin-panel/citizens/ #}
+{% load ss %}
+{% block title %}Citizens{% endblock %}
+{% block crumb %}Citizens{% endblock %}
+{% block content %}
+<div class="page-head" style="padding-top:6px"><span class="kicker" data-reveal>People</span><h1 data-words>Citizens</h1><p data-reveal>{{ page.paginator.count }} registered. Block accounts that misuse the platform.</p></div>
+<form class="filters" method="get" data-reveal data-no-loading>
+  <div class="search-box">{% icon "search" 17 %}<input type="search" name="q" value="{{ q }}" placeholder="Name, email or phone"></div>
+  <button class="btn" type="submit">{% icon "search" 16 %} Search</button>
+</form>
+<div class="card" data-reveal>
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Citizen</th><th>Phone</th><th>Ward</th><th>Complaints</th><th>Cleaned</th><th>Joined</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for u in page %}
+      <tr>
+        <td class="lead-cell"><div class="flex">{% avatar u "sm" %}<div>{{ u.display_name }}<span class="sub">{{ u.email }}</span></div></div></td>
+        <td class="small">{{ u.phone|default:"—" }}</td>
+        <td class="small">{% if u.ward %}W{{ u.ward.number }}{% else %}—{% endif %}</td>
+        <td class="strong">{{ u.n }}</td><td class="text-brand strong">{{ u.done }}</td>
+        <td class="small nowrap">{{ u.date_joined|date:"d M Y" }}</td>
+        <td>{% if u.is_active %}<span class="badge t-green"><i class="dot"></i>Active</span>{% else %}<span class="badge t-red"><i class="dot"></i>Blocked</span>{% endif %}</td>
+        <td class="right"><form method="post" action="{% url 'panel:user_toggle' u.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="btn btn-sm {% if u.is_active %}btn-outline{% else %}btn-soft{% endif %}" type="submit">{% if u.is_active %}Block{% else %}Unblock{% endif %}</button></form></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="8">{% include "partials/empty.html" with title="No citizens yet" text="People appear here when they sign up." %}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% include "partials/pager.html" %}
+{% endblock %}

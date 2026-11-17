@@ -1,0 +1,16 @@
+# Python / Django
+venv/
+__pycache__/
+*.pyc
+staticfiles/
+
+# Local data: the database holds account emails and password hashes, and media holds uploaded photos.
+# On a new machine run: migrate, setup_city, createsuperuser, seed_demo (see README).
+db.sqlite3
+media/
+
+# Editor / OS / tool files
+.DS_Store
+.claude/
+.vscode/
+.idea/

@@ -1,0 +1,107 @@
+{% load static ss %}<!doctype html>
+{# PAGE: ADMIN PANEL LAYOUT: dark left sidebar menu, top bar (search Ctrl+K, date, bell), command palette. All admin pages extend this. #}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>document.documentElement.classList.add("js");try{if(localStorage.getItem("ss-side")==="mini")document.documentElement.classList.add("side-mini")}catch(e){}</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Admin{% endblock %} · {{ SITE_NAME }} Admin</title>
+  <meta name="theme-color" content="#15211B">
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/logo.svg' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body class="panel-body">
+  {% include "partials/messages.html" %}
+  {% with rm=request.resolver_match.url_name %}
+  <div class="panel">
+    <aside class="side" aria-label="Admin navigation">
+      <div class="side-top">
+        <a href="{% url 'panel:dashboard' %}" class="side-brand">
+          <img src="{% static 'img/logo.svg' %}" alt="">
+          <span class="lb"><b>Saaf<em>Shehar</em></b><small>Control room</small></span>
+        </a>
+        <button class="side-collapse" type="button" data-collapse aria-label="Collapse sidebar" title="Collapse sidebar">{% icon "sidebar" 18 %}</button>
+      </div>
+
+      <div class="side-live">
+        <span class="pulse"><i></i>Live</span>
+        <span class="lb"><b>{{ side_open|default:0 }}</b> open · <b class="{% if side_overdue %}red{% endif %}">{{ side_overdue|default:0 }}</b> overdue</span>
+      </div>
+
+      <nav class="side-nav">
+        <div class="sec"><span class="lb">Overview</span></div>
+        <a href="{% url 'panel:dashboard' %}" class="{% active 'panel:dashboard' %}" data-tip="Dashboard"><span class="ic">{% icon "grid" 18 %}</span><span class="lb">Dashboard</span></a>
+        <a href="{% url 'panel:complaints' %}" class="{% if rm == 'complaint' or rm == 'complaints' and not request.GET.overdue and request.GET.status != 'RECEIVED' %}active{% endif %}" data-tip="All complaints"><span class="ic">{% icon "inbox" 18 %}</span><span class="lb">Complaints</span>{% if side_open %}<span class="n">{{ side_open }}</span>{% endif %}</a>
+        <a href="{% url 'panel:complaints' %}?status=RECEIVED" class="{% if rm == 'complaints' and request.GET.status == 'RECEIVED' %}active{% endif %}" data-tip="New"><span class="ic">{% icon "sparkles" 18 %}</span><span class="lb">New</span>{% if side_new %}<span class="n sun">{{ side_new }}</span>{% endif %}</a>
+        <a href="{% url 'panel:complaints' %}?overdue=1" class="{% if rm == 'complaints' and request.GET.overdue %}active{% endif %}" data-tip="Overdue"><span class="ic">{% icon "clock" 18 %}</span><span class="lb">Overdue</span>{% if side_overdue %}<span class="n red">{{ side_overdue }}</span>{% endif %}</a>
+
+        <div class="sec"><span class="lb">Manage</span></div>
+        <a href="{% url 'panel:wards' %}" class="{% active 'panel:wards' 'panel:ward_edit' %}" data-tip="Wards"><span class="ic">{% icon "map" 18 %}</span><span class="lb">Wards</span></a>
+        <a href="{% url 'panel:categories' %}" class="{% active 'panel:categories' 'panel:category_edit' %}" data-tip="Categories"><span class="ic">{% icon "layers" 18 %}</span><span class="lb">Categories</span></a>
+        <a href="{% url 'panel:users' %}" class="{% active 'panel:users' %}" data-tip="Citizens"><span class="ic">{% icon "users" 18 %}</span><span class="lb">Citizens</span></a>
+
+        <div class="sec"><span class="lb">Shortcuts</span></div>
+        <a href="{% url 'panel:export' %}" data-no-transition data-tip="Export CSV"><span class="ic">{% icon "download" 18 %}</span><span class="lb">Export CSV</span></a>
+        <a href="{% url 'core:home' %}" target="_blank" data-tip="View website"><span class="ic">{% icon "globe" 18 %}</span><span class="lb">View website</span><span class="ext">{% icon "arrow-up-right" 14 %}</span></a>
+        <a href="{% url 'admin:index' %}" data-tip="Django admin"><span class="ic">{% icon "cog" 18 %}</span><span class="lb">Django admin</span></a>
+      </nav>
+
+      <div class="side-rate">
+        <div class="row"><span>Cleaned rate</span><b>{{ side_rate|default:0 }}%</b></div>
+        <div class="track"><i style="width:{{ side_rate|default:0 }}%"></i></div>
+      </div>
+
+      <div class="side-user">
+        {% avatar user "sm" %}
+        <div class="lb who"><b>{{ user.first_name|default:"Admin" }}</b><small>Municipal admin</small></div>
+        <a href="{% url 'accounts:profile' %}" class="su-btn lb" title="Profile & password" aria-label="Profile">{% icon "user" 16 %}</a>
+        <form method="post" action="{% url 'accounts:logout' %}" class="lb" data-no-loading>{% csrf_token %}<button class="su-btn" type="submit" title="Sign out" aria-label="Sign out">{% icon "logout" 16 %}</button></form>
+      </div>
+    </aside>
+    <div class="side-scrim" data-side-close></div>
+
+    <div class="p-main">
+      <header class="p-top">
+        <button class="icon-btn p-menu-btn" type="button" aria-label="Open menu">{% icon "menu" 20 %}</button>
+        <div class="p-crumb"><span>Admin</span>{% icon "chevron-right" 14 %}<b>{% block crumb %}Dashboard{% endblock %}</b></div>
+        <div class="kbd-search" data-palette role="button" tabindex="0">{% icon "search" 17 %}<span>Search or jump to…</span><kbd>Ctrl K</kbd></div>
+        <div class="p-right">
+          <span class="p-date hide-sm">{% icon "calendar" 15 %} {% now "D, d M" %}</span>
+          <a href="{% url 'accounts:notifications' %}" class="icon-btn" aria-label="Notifications">{% icon "bell" 19 %}{% if unread_count %}<span class="dot-count">{{ unread_count }}</span>{% endif %}</a>
+          <a href="{% url 'accounts:profile' %}" class="p-avatar" title="Profile">{% avatar user "sm" %}</a>
+        </div>
+      </header>
+      <div class="p-content">{% block content %}{% endblock %}</div>
+    </div>
+  </div>
+  {% endwith %}
+
+  <div class="palette-bg" data-base="{% url 'panel:complaints' %}">
+    <div class="palette" role="dialog" aria-label="Command palette">
+      <input type="text" placeholder="Type a page, or a complaint number like 42 or SS-2026-0042…" aria-label="Search">
+      <div class="items">
+        <a href="#" data-goto-code data-always style="display:none">{% icon "arrow-right" 17 %} Open complaint with this number <kbd>Enter</kbd></a>
+        <a href="{% url 'panel:dashboard' %}">{% icon "grid" 17 %} Dashboard</a>
+        <a href="{% url 'panel:complaints' %}">{% icon "inbox" 17 %} All complaints</a>
+        <a href="{% url 'panel:complaints' %}?status=RECEIVED">{% icon "sparkles" 17 %} New (received) complaints</a>
+        <a href="{% url 'panel:complaints' %}?status=IN_PROGRESS">{% icon "truck" 17 %} Work in progress</a>
+        <a href="{% url 'panel:complaints' %}?overdue=1">{% icon "clock" 17 %} Overdue complaints</a>
+        <a href="{% url 'panel:complaints' %}?status=REOPENED">{% icon "refresh" 17 %} Reopened complaints</a>
+        <a href="{% url 'panel:complaints' %}?sort=votes">{% icon "thumbs" 17 %} Most upvoted</a>
+        <a href="{% url 'panel:wards' %}">{% icon "map" 17 %} Wards</a>
+        <a href="{% url 'panel:categories' %}">{% icon "layers" 17 %} Categories</a>
+        <a href="{% url 'panel:users' %}">{% icon "users" 17 %} Citizens</a>
+        <a href="{% url 'panel:export' %}">{% icon "download" 17 %} Export all complaints (CSV)</a>
+        <a href="{% url 'core:home' %}">{% icon "globe" 17 %} Open public website</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'vendor/chart.umd.min.js' %}"></script>
+  <script src="{% static 'js/app.js' %}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

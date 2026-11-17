@@ -1,0 +1,20 @@
+{% extends base_template|default:"base.html" %}
+{# PAGE: AROUND ME | view: complaints/views.py -> feed | URL: /complaints/feed/ #}
+{% load ss %}
+{% block title %}Around me{% endblock %}
+{% block content %}
+<div class="container pb">
+  <div class="page-head"><span class="kicker" data-reveal>Community</span><h1 data-words>Around me</h1><p data-reveal>Open complaints around the city. Upvote the ones you face too, so the team fixes the worst first.</p></div>
+  <form class="filters" method="get" data-reveal data-no-loading>
+    <select name="ward" onchange="this.form.submit()"><option value="">All wards</option>{% for w in wards %}<option value="{{ w.pk }}" {% if ward == w.pk|stringformat:"s" %}selected{% endif %}>{{ w }}</option>{% endfor %}</select>
+    <select name="category" onchange="this.form.submit()"><option value="">All problems</option>{% for c in categories %}<option value="{{ c.slug }}" {% if cat == c.slug %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
+    <div class="seg"><label><input type="radio" name="sort" value="votes" onchange="this.form.submit()" {% if sort == "votes" %}checked{% endif %}>{% icon "thumbs" 14 %} Most upvoted</label><label><input type="radio" name="sort" value="new" onchange="this.form.submit()" {% if sort == "new" %}checked{% endif %}>{% icon "clock" 14 %} Newest</label></div>
+  </form>
+  {% if page.object_list %}
+    <div class="c-grid">{% for c in page %}{% include "partials/complaint_card.html" %}{% endfor %}</div>
+    {% include "partials/pager.html" %}
+  {% else %}
+    <div class="card">{% include "partials/empty.html" with title="Nothing open here" text="No open complaints match these filters. Your area is looking clean!" %}</div>
+  {% endif %}
+</div>
+{% endblock %}

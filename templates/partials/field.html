@@ -1,0 +1,7 @@
+{# PAGE: One form field with its label, help text and error message (used by all forms). #}
+<div class="field {% if full %}full{% endif %} {% if f.errors %}has-error{% endif %}">
+  <label for="{{ f.id_for_label }}">{{ f.label }}{% if f.field.required %} <span class="text-brand">*</span>{% endif %}</label>
+  {{ f }}
+  {% if f.help_text %}<span class="help">{{ f.help_text }}</span>{% endif %}
+  {% if f.errors %}<ul class="errors">{% for e in f.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+</div>

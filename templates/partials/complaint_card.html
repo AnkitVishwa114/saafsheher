@@ -1,0 +1,28 @@
+{% load ss %}
+{# PAGE: Complaint CARD (photo, status, category, upvote) used in lists. #}
+<article class="c-card" data-reveal>
+  <div class="photo">
+    <img src="{{ c.photo.url }}" alt="{{ c.title }}" loading="lazy">
+    {% status c True %}
+    <span class="code">{{ c.code }}</span>
+  </div>
+  <div class="body">
+    <h3><a href="{{ c.get_absolute_url }}">{{ c.title }}</a></h3>
+    <div class="meta">
+      <span class="chip" style="background:{{ c.category.color }}1a;color:{{ c.category.color }}">{% icon c.category.icon 13 %} {{ c.category.name }}</span>
+      <span class="chip">{% icon "pin" 12 %} Ward {{ c.ward.number }}</span>
+      {% if c.is_overdue %}<span class="chip" style="background:var(--red-50);color:#9F1239">{% icon "clock" 12 %} Overdue</span>{% endif %}
+    </div>
+    <div class="foot">
+      <span class="tiny muted strong">{{ c.created_at|timesince }} ago · {{ c.user.first_name|default:"Citizen" }}</span>
+      {% if user.is_authenticated and not user.is_admin_role and c.user_id != user.id and c.is_open %}
+        <form method="post" action="{% url 'complaints:upvote' c.code %}" data-vote data-no-loading>{% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <button class="vote {% if c.voted %}on{% endif %}" type="submit" title="Mujhe bhi dikkat hai">{% icon "thumbs" 15 %} <span data-n>{{ c.n_votes }}</span></button>
+        </form>
+      {% else %}
+        <span class="vote" style="cursor:default">{% icon "thumbs" 15 %} {{ c.n_votes|default:0 }}</span>
+      {% endif %}
+    </div>
+  </div>
+</article>

@@ -1,0 +1,13 @@
+<svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <rect width="800" height="500" fill="#E0F2FE"/>
+  <rect y="300" width="800" height="200" fill="#A7F3D0"/>
+  <rect y="360" width="800" height="70" fill="#CBD5E1"/>
+  <rect x="40" y="90" width="220" height="210" fill="#FFFFFF"/><rect x="300" y="60" width="180" height="240" fill="#ECFDF5"/><rect x="520" y="110" width="240" height="190" fill="#FFFFFF"/>
+  <g fill="#BAE6FD"><rect x="70" y="120" width="40" height="40"/><rect x="150" y="120" width="40" height="40"/><rect x="330" y="100" width="36" height="36"/><rect x="410" y="100" width="36" height="36"/><rect x="560" y="140" width="40" height="40"/><rect x="660" y="140" width="40" height="40"/></g>
+  <g transform="translate(330 300)"><rect x="0" y="12" width="38" height="56" rx="6" fill="#10B981"/><rect x="-4" y="4" width="46" height="10" rx="5" fill="#047857"/></g>
+  <g transform="translate(386 300)"><rect x="0" y="12" width="38" height="56" rx="6" fill="#0EA5E9"/><rect x="-4" y="4" width="46" height="10" rx="5" fill="#0369A1"/></g>
+  <g transform="translate(110 240)"><rect x="18" y="60" width="10" height="70" fill="#8B5E3C"/><circle cx="23" cy="50" r="46" fill="#22C55E"/></g>
+  <g transform="translate(620 250)"><rect x="18" y="60" width="10" height="60" fill="#8B5E3C"/><circle cx="23" cy="50" r="40" fill="#16A34A"/></g>
+  <circle cx="700" cy="70" r="36" fill="#FDE68A"/>
+  <path d="M500 330l10 20 22 3-16 15 4 22-20-11-20 11 4-22-16-15 22-3z" fill="#BEF264"/>
+</svg>

@@ -1,0 +1,49 @@
+{% extends "panel/base.html" %}
+{# PAGE: ADMIN: ALL COMPLAINTS table + filters | view: core/panel.py -> complaints | URL: /admin-panel/complaints/ #}
+{% load ss %}
+{% block title %}Complaints{% endblock %}
+{% block crumb %}Complaints{% endblock %}
+{% block content %}
+<div class="page-head" style="padding-top:6px"><span class="kicker" data-reveal>Work queue</span><div class="row"><div><h1 data-words>Complaints</h1><p data-reveal>{{ page.paginator.count }} shown · {{ total }} total. Red rows are past their deadline.</p></div>
+  <a href="{% url 'panel:export' %}?{{ request.GET.urlencode }}" class="btn btn-soft" data-no-transition>{% icon "download" 16 %} Export these (CSV)</a></div></div>
+
+<div class="toolbar" data-reveal>
+  <div class="tabs">
+    <a href="?" class="{% if not f.status and not f.overdue %}active{% endif %}">All <span class="n">{{ total }}</span></a>
+    {% for v, l in statuses %}<a href="?status={{ v }}" class="{% if f.status == v %}active{% endif %}">{{ l }} <span class="n">{{ counts|get:v }}</span></a>{% endfor %}
+    <a href="?overdue=1" class="{% if f.overdue %}active{% endif %}">{% icon "clock" 13 %} Overdue</a>
+  </div>
+</div>
+<form class="filters" method="get" data-reveal data-no-loading>
+  {% if f.status %}<input type="hidden" name="status" value="{{ f.status }}">{% endif %}
+  <div class="search-box">{% icon "search" 17 %}<input type="search" name="q" value="{{ f.q }}" placeholder="Code, title, address, citizen…"></div>
+  <select name="ward" onchange="this.form.submit()"><option value="">All wards</option>{% for w in wards %}<option value="{{ w.pk }}" {% if f.ward == w.pk|stringformat:"s" %}selected{% endif %}>W{{ w.number }} · {{ w.name }}</option>{% endfor %}</select>
+  <select name="category" onchange="this.form.submit()"><option value="">All categories</option>{% for c in categories %}<option value="{{ c.pk }}" {% if f.category == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
+  <select name="priority" onchange="this.form.submit()"><option value="">Any priority</option>{% for v, l in priorities %}<option value="{{ v }}" {% if f.priority == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+  <select name="sort" onchange="this.form.submit()"><option value="">Newest</option><option value="old" {% if f.sort == "old" %}selected{% endif %}>Oldest</option><option value="votes" {% if f.sort == "votes" %}selected{% endif %}>Most upvoted</option></select>
+  <button class="btn" type="submit">{% icon "filter" 16 %} Apply</button>
+</form>
+
+<div class="card" data-reveal>
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Complaint</th><th>Category</th><th>Ward</th><th>Priority</th><th>Upvotes</th><th>Deadline</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for c in page %}
+      <tr class="{% if c.is_overdue %}overdue{% endif %}">
+        <td class="lead-cell"><a href="{{ c.get_admin_url }}" class="flex" style="gap:12px"><img class="thumb" src="{{ c.photo.url }}" alt=""><span style="min-width:0">{{ c.title|truncatechars:42 }}<span class="sub">{{ c.code }} · {{ c.user.display_name }} · {{ c.created_at|timesince }} ago</span></span></a></td>
+        <td><span class="chip" style="background:{{ c.category.color }}1a;color:{{ c.category.color }}">{% icon c.category.icon 13 %} {{ c.category.name }}</span></td>
+        <td class="small strong">W{{ c.ward.number }}</td>
+        <td><span class="small strong pri-{{ c.priority }}">● {{ c.get_priority_display }}</span></td>
+        <td class="strong">{{ c.n_votes }}</td>
+        <td class="small nowrap">{% if c.is_open %}{% if c.is_overdue %}<b class="text-red">{{ c.hours_left|cut:"-" }}h late</b>{% else %}{{ c.hours_left }}h left{% endif %}{% elif c.resolution_hours %}<span class="text-brand strong">done in {{ c.resolution_hours }}h</span>{% else %}—{% endif %}</td>
+        <td>{% status c %}</td>
+        <td class="right"><a href="{{ c.get_admin_url }}" class="btn btn-soft btn-sm">Open {% icon "arrow-right" 14 "go" %}</a></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="8">{% include "partials/empty.html" with title="No complaints match" text="Try clearing the filters." %}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% include "partials/pager.html" %}
+{% endblock %}

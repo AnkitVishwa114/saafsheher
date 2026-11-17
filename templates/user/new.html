@@ -1,0 +1,91 @@
+{% extends "user/base.html" %}
+{# PAGE: REPORT A PROBLEM (4-step form) | view: complaints/views.py -> new | validation: complaints/forms.py -> ComplaintForm | URL: /complaints/new/ #}
+{% load ss %}
+{% block title %}Report a problem{% endblock %}
+{% block content %}
+<div class="container mid pb">
+  <div class="page-head">
+    <div class="crumbs" data-reveal><a href="{% url 'core:dashboard' %}">{% icon "arrow-left" 14 %} Home</a></div>
+    <h1 data-words>Report a problem</h1>
+    <p data-reveal>4 quick steps. Takes about 30 seconds.</p>
+  </div>
+  <form method="post" enctype="multipart/form-data" novalidate data-wizard {% if form.is_bound %}data-start="0"{% endif %} class="card card-body" data-reveal style="--d:.1s;padding:28px">{% csrf_token %}
+    <div class="steps-bar"><div class="s"><i></i><span>Photo</span></div><div class="s"><i></i><span>What is it?</span></div><div class="s"><i></i><span>Where?</span></div><div class="s"><i></i><span>Review</span></div></div>
+    {% if form.non_field_errors %}<div class="form-errors">{% icon "alert" 18 %}<span>{{ form.non_field_errors.0 }}</span></div>{% endif %}
+
+    <div class="wstep">
+      <h3 class="mb-2">Add a clear photo</h3>
+      {% if form.is_bound and not form.photo.errors %}<div class="notice amber mb-2 small">{% icon "alert" 18 %}<div><b>Please attach the photo again</b><p>Browsers don't keep files after a form error. Your other answers are saved.</p></div></div>{% endif %}
+      <div class="field {% if form.photo.errors %}has-error{% endif %}">
+        <label class="dropzone {% if form.photo.errors %}{% endif %}" data-dropzone data-max-mb="5" data-min-px="200">
+          <div>
+            <div class="dz-ic">{% icon "camera" 32 %}</div>
+            <b style="font-size:1.05rem">Tap to take or choose a photo</b>
+            <p class="small muted mb-0 mt-1">or drag & drop · JPG, PNG, WEBP · max 5 MB</p>
+          </div>
+          <input type="file" name="photo" id="id_photo" accept="image/jpeg,image/png,image/webp" capture="environment" required>
+          <span class="btn btn-sm change">{% icon "refresh" 14 %} Change photo</span>
+        </label>
+        <div class="live-err" data-dz-error></div>
+        {% if form.photo.errors %}<ul class="errors">{% for e in form.photo.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+      <div class="form-actions"><button type="button" class="btn btn-brand" data-next>Continue {% icon "arrow-right" 16 "go" %}</button></div>
+    </div>
+
+    <div class="wstep">
+      <h3 class="mb-2">What kind of problem?</h3>
+      <div class="field full {% if form.category.errors %}has-error{% endif %}">
+        <div class="choice-cards">
+          {% for cat in categories %}
+          <label style="--c:{{ cat.color }}"><input type="radio" name="category" value="{{ cat.pk }}" data-label="{{ cat.name }}" required {% if form.category.value|stringformat:"s" == cat.pk|stringformat:"s" %}checked{% endif %}>
+            <span class="ic">{% icon cat.icon 22 %}</span><b>{{ cat.name }}</b><small>Cleaned within {{ cat.sla_hours }}h</small></label>
+          {% endfor %}
+        </div>
+        {% if form.category.errors %}<ul class="errors"><li>{{ form.category.errors.0 }}</li></ul>{% endif %}
+      </div>
+      <div class="form-grid mt-3">
+        {% include "partials/field.html" with f=form.title full=1 %}
+        {% include "partials/field.html" with f=form.description full=1 %}
+        <div class="field full"><label>{{ form.priority.label }}</label><div class="seg">{% for o in form.priority %}<label>{{ o.tag }} {{ o.choice_label }}</label>{% endfor %}</div></div>
+      </div>
+      <div class="form-actions"><button type="button" class="btn btn-ghost" data-prev>{% icon "arrow-left" 16 %} Back</button><button type="button" class="btn btn-brand" data-next>Continue {% icon "arrow-right" 16 "go" %}</button></div>
+    </div>
+
+    <div class="wstep">
+      <h3 class="mb-2">Where is it?</h3>
+      <div class="loc-box mb-3">
+        <span class="pin">{% icon "pin" 22 %}</span>
+        <div style="flex:1;min-width:0"><b>Use my current location</b><div class="small muted" data-loc-text>Adds exact GPS so the team finds it fast (optional)</div></div>
+        <button type="button" class="btn btn-sm" data-locate>{% icon "target" 15 %} Locate</button>
+      </div>
+      <iframe class="map-frame" title="Map preview" loading="lazy"></iframe>
+      {{ form.latitude }}{{ form.longitude }}
+      <div class="form-grid mt-2">
+        {% include "partials/field.html" with f=form.address full=1 %}
+        {% include "partials/field.html" with f=form.landmark %}
+        {% include "partials/field.html" with f=form.pincode %}
+        {% include "partials/field.html" with f=form.ward full=1 %}
+      </div>
+      <div class="form-actions"><button type="button" class="btn btn-ghost" data-prev>{% icon "arrow-left" 16 %} Back</button><button type="button" class="btn btn-brand" data-next>Review {% icon "arrow-right" 16 "go" %}</button></div>
+    </div>
+
+    <div class="wstep">
+      <h3 class="mb-2">Check & send</h3>
+      <div class="grid g2" style="align-items:start">
+        <div class="photo-frame"><img data-review-photo alt="Your photo" src="data:image/gif;base64,R0lGODlhAQABAAAAACw="></div>
+        <dl class="kv">
+          <dt>Problem</dt><dd data-review="category">—</dd>
+          <dt>Title</dt><dd data-review="title">—</dd>
+          <dt>Urgency</dt><dd data-review="priority">—</dd>
+          <dt>Address</dt><dd data-review="address">—</dd>
+          <dt>Landmark</dt><dd data-review="landmark">—</dd>
+          <dt>PIN</dt><dd data-review="pincode">—</dd>
+          <dt>Ward</dt><dd data-review="ward">—</dd>
+        </dl>
+      </div>
+      <div class="notice sky mt-3 small">{% icon "shield" 18 %}<div>Your name is visible to the municipal team. Neighbours see only your first name.</div></div>
+      <div class="form-actions"><button type="button" class="btn btn-ghost" data-prev>{% icon "arrow-left" 16 %} Back</button><button type="submit" class="btn btn-brand btn-lg">{% icon "send" 17 %} Send complaint</button></div>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "panel/base.html" %}
+{# PAGE: ADMIN: WARDS | view: core/panel.py -> wards | form: WardForm | URL: /admin-panel/wards/ #}
+{% load ss %}
+{% block title %}Wards{% endblock %}
+{% block crumb %}Wards{% endblock %}
+{% block content %}
+<div class="page-head" style="padding-top:6px"><span class="kicker" data-reveal>Manage</span><h1 data-words>Wards</h1><p data-reveal>Ranked by % of complaints cleaned. Rename wards to match your city.</p></div>
+<div class="grid g-side">
+  <div class="card" data-reveal>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>#</th><th>Ward</th><th>Zone</th><th>Open</th><th>Cleaned</th><th style="width:170px">Score</th><th></th></tr></thead>
+      <tbody>
+      {% for w in wards %}
+        <tr><td class="strong">{{ forloop.counter }}</td><td class="lead-cell">Ward {{ w.number }} · {{ w.name }}</td><td class="small">{{ w.zone|default:"—" }}</td><td>{{ w.open }}</td><td class="text-brand strong">{{ w.resolved }}</td>
+          <td>{% if w.total %}<div class="flex"><div class="bar-line" style="flex:1"><i data-w="{{ w.score }}"></i></div><b class="small">{{ w.score }}%</b></div>{% else %}<span class="small faint">No complaints</span>{% endif %}</td>
+          <td class="right"><a href="{% url 'panel:ward_edit' w.pk %}" class="btn btn-ghost btn-sm">{% icon "edit" 14 %}</a></td></tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+  </div>
+  <div class="card sticky" data-reveal>
+    <div class="card-head"><h3>{% if obj %}{% icon "edit" 18 "text-brand" %} Edit ward {{ obj.number }}{% else %}{% icon "plus" 18 "text-brand" %} Add ward{% endif %}</h3>{% if obj %}<a href="{% url 'panel:wards' %}" class="btn btn-ghost btn-sm">Cancel</a>{% endif %}</div>
+    <div class="card-body">
+      <form method="post" novalidate class="stack" style="gap:14px">{% csrf_token %}
+        {% include "partials/field.html" with f=form.number %}
+        {% include "partials/field.html" with f=form.name %}
+        {% include "partials/field.html" with f=form.zone %}
+        <button class="btn btn-brand btn-block" type="submit">{% if obj %}Save ward{% else %}Add ward{% endif %}</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

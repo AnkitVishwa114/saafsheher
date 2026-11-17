@@ -1,0 +1,21 @@
+{% extends "user/base.html" %}
+{# PAGE: MY COMPLAINTS | view: complaints/views.py -> mine | URL: /complaints/mine/ #}
+{% load ss %}
+{% block title %}My complaints{% endblock %}
+{% block content %}
+<div class="container pb">
+  <div class="page-head"><span class="kicker" data-reveal>Your reports</span><div class="row"><div><h1 data-words>My complaints</h1><p data-reveal>Follow every report from received to cleaned.</p></div><a href="{% url 'complaints:new' %}" class="btn btn-brand">{% icon "camera" 17 %} New report</a></div></div>
+  <div class="toolbar" data-reveal>
+    <div class="tabs">
+      <a href="?" class="{% if not status %}active{% endif %}">All</a>
+      {% for v, l in statuses %}<a href="?status={{ v }}" class="{% if status == v %}active{% endif %}">{{ l }} <span class="n">{{ counts|get:v }}</span></a>{% endfor %}
+    </div>
+  </div>
+  {% if page.object_list %}
+    <div class="c-grid">{% for c in page %}{% include "partials/complaint_card.html" %}{% endfor %}</div>
+    {% include "partials/pager.html" %}
+  {% else %}
+    <div class="card">{% url 'complaints:new' as new_url %}{% include "partials/empty.html" with title="Nothing here" text="Complaints you file will show up here with their live status." url=new_url cta="Report a problem" %}</div>
+  {% endif %}
+</div>
+{% endblock %}

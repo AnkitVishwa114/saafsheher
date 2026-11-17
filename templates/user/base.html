@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{# PAGE: CITIZEN ACCOUNT LAYOUT: adds the left account sidebar (profile card, menu) around citizen pages. #}
+{% load ss %}
+{% block body_class %}has-shell{% endblock %}
+{% block footer %}{% endblock %}
+{% block shell_open %}
+<div class="u-shell">
+  <aside class="u-side" aria-label="Your account">
+    <div class="us-card">
+      <div class="us-profile">
+        <div class="row">
+          {% avatar user %}
+          <div style="min-width:0"><b>{{ user.display_name }}</b><small>{% icon "pin" 12 %} {% if user.ward %}Ward {{ user.ward.number }} · {{ user.ward.name }}{% else %}No ward set{% endif %}</small></div>
+        </div>
+        <div class="us-stats">
+          <div><b>{{ my_total|default:0 }}</b><span>Filed</span></div>
+          <div><b class="sun">{{ my_open|default:0 }}</b><span>Open</span></div>
+          <div><b>{{ my_done|default:0 }}</b><span>Cleaned</span></div>
+        </div>
+      </div>
+      <a href="{% url 'complaints:new' %}" class="btn btn-brand btn-block us-report">{% icon "camera" 17 %} Report a problem</a>
+      <nav class="us-nav">
+        <a href="{% url 'core:dashboard' %}" class="{% active 'core:dashboard' %}"><span class="ic">{% icon "home" 17 %}</span>Home</a>
+        <a href="{% url 'complaints:mine' %}" class="{% active 'complaints:mine' 'complaints:detail' %}"><span class="ic">{% icon "list" 17 %}</span>My complaints{% if my_open %}<span class="n sun">{{ my_open }}</span>{% endif %}</a>
+        <a href="{% url 'complaints:feed' %}" class="{% active 'complaints:feed' %}"><span class="ic">{% icon "map" 17 %}</span>Around me</a>
+        <a href="{% url 'core:leaderboard' %}"><span class="ic">{% icon "trophy" 17 %}</span>Ward ranking</a>
+        <a href="{% url 'accounts:notifications' %}" class="{% active 'accounts:notifications' %}"><span class="ic">{% icon "bell" 17 %}</span>Notifications{% if unread_count %}<span class="n red">{{ unread_count }}</span>{% endif %}</a>
+        <div class="sec">Account</div>
+        <a href="{% url 'accounts:profile' %}" class="{% active 'accounts:profile' %}"><span class="ic">{% icon "user" 17 %}</span>Profile & password</a>
+        <form method="post" action="{% url 'accounts:logout' %}" data-no-loading>{% csrf_token %}<button type="submit"><span class="ic">{% icon "logout" 17 %}</span>Sign out</button></form>
+      </nav>
+    </div>
+    <div class="us-card us-tip">
+      <b>{% icon "search" 16 "text-brand" %} Track any complaint</b>
+      <p>Have a number from a neighbour? Check its status.</p>
+      <form method="get" action="{% url 'core:track' %}" data-no-loading><input type="text" name="code" placeholder="SS-2026-0001" aria-label="Complaint number"><button class="btn btn-sm" type="submit">Go</button></form>
+    </div>
+  </aside>
+  <div class="u-main">
+{% endblock %}
+{% block shell_close %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+<svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <rect width="800" height="500" fill="#D6D3C7"/>
+  <rect y="300" width="800" height="200" fill="#8A877D"/>
+  <rect x="40" y="90" width="220" height="210" fill="#B9B3A5"/><rect x="300" y="60" width="180" height="240" fill="#A8A194"/><rect x="520" y="110" width="240" height="190" fill="#BFB8AA"/>
+  <g fill="#8F897D"><rect x="70" y="120" width="40" height="40"/><rect x="150" y="120" width="40" height="40"/><rect x="330" y="100" width="36" height="36"/><rect x="410" y="100" width="36" height="36"/><rect x="560" y="140" width="40" height="40"/><rect x="660" y="140" width="40" height="40"/></g>
+  <ellipse cx="400" cy="400" rx="230" ry="60" fill="#5E5A4F"/>
+  <g><circle cx="300" cy="380" r="40" fill="#4B5563"/><circle cx="360" cy="360" r="46" fill="#6B7280"/><circle cx="430" cy="372" r="52" fill="#57534E"/><circle cx="500" cy="390" r="40" fill="#78716C"/></g>
+  <rect x="330" y="330" width="40" height="26" rx="4" fill="#E11D48" transform="rotate(-18 350 343)"/>
+  <rect x="440" y="330" width="34" height="44" rx="6" fill="#0EA5E9" transform="rotate(22 457 352)"/>
+  <rect x="250" y="400" width="60" height="16" rx="4" fill="#F59E0B" transform="rotate(10 280 408)"/>
+  <circle cx="520" cy="420" r="12" fill="#A3E635"/><circle cx="270" cy="430" r="9" fill="#F97316"/>
+  <path d="M600 300c10-30 30-40 40-80M640 300c-6-24 6-40 20-60" stroke="#57534E" stroke-width="6" opacity=".5" stroke-linecap="round"/>
+  <g stroke="#3F3F46" stroke-width="3" stroke-linecap="round" opacity=".6"><path d="M330 290l-8-14M350 286l2-16M372 292l10-12"/></g>
+</svg>

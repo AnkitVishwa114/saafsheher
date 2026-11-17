@@ -1,0 +1,40 @@
+{% load static ss %}
+{# PAGE: FOOTER of the website with links and the big 'saaf shehar' wordmark. #}
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a href="{% url 'core:home' %}" class="brand"><img src="{% static 'img/logo.svg' %}" alt=""><span>Saaf<b>Shehar</b></span></a>
+        <p class="mt-2" style="max-width:330px">A civic helpline for the small things that make a big difference: the pile on the corner, the bin nobody empties, the drain that floods every monsoon.</p>
+      </div>
+      <div>
+        <h4>Citizens</h4>
+        <ul>
+          <li><a href="{% url 'complaints:new' %}">Report a problem</a></li>
+          <li><a href="{% url 'core:track' %}">Track a complaint</a></li>
+          <li><a href="{% url 'accounts:signup' %}">Create an account</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>The city</h4>
+        <ul>
+          <li><a href="{% url 'core:leaderboard' %}">Ward ranking</a></li>
+          <li><a href="{% url 'core:home' %}#how">How it works</a></li>
+          <li><a href="{% url 'core:home' %}#faq">Questions</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Municipal staff</h4>
+        <ul>
+          <li><a href="{% url 'admin_login' %}">Admin sign in</a></li>
+          <li><a href="{% url 'core:home' %}#city">What the team sees</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-big" aria-hidden="true" data-light>saaf shehar</div>
+    <div class="footer-bottom">
+      <span>© {% now "Y" %} SaafShehar. A college project for SIH26195 (Waste & Sanitation).</span>
+      <span>Built with Django in India</span>
+    </div>
+  </div>
+</footer>

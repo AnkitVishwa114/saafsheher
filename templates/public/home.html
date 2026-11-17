@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+{# PAGE: HOME PAGE | view: core/views.py -> home | URL: / #}
+{% load static ss %}
+{% block title %}Report garbage, follow the clean-up{% endblock %}
+{% block content %}
+
+{# ---------------------------------------------------------------- hero #}
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow" data-reveal><i></i>Citizen sanitation helpline</span>
+      <h1 data-words>Spotted garbage?<br>Report it. <em>We'll</em><br>get it <em class="red">cleaned.</em></h1>
+      <p class="lead" data-reveal style="--d:.1s">Take a photo of the pile, the overflowing bin or the blocked drain. It reaches the municipal team in your ward, and you can follow every step until the spot is clean.</p>
+      <div class="actions" data-reveal style="--d:.15s">
+        <a href="{% if user.is_authenticated %}{% url 'complaints:new' %}{% else %}{% url 'accounts:signup' %}{% endif %}" class="btn btn-brand btn-lg">{% icon "camera" 18 %} Report a problem</a>
+        <a href="#how" class="btn btn-outline btn-lg">See how it works</a>
+      </div>
+      <div class="trust" data-reveal style="--d:.2s">
+        <span>{% icon "check" 16 %} Free for every citizen</span>
+        <span>{% icon "check" 16 %} Works in any phone browser</span>
+        <span>{% icon "check" 16 %} Photo proof when it's done</span>
+      </div>
+    </div>
+
+    <div class="mock-wrap" data-reveal style="--d:.1s">
+      <div data-speed="-0.12"><div class="phone phone-float" aria-hidden="true">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="ps-status"><span>9:41</span><span>●●● 4G</span></div>
+          <div class="ps-head"><b>Complaint SS-2026-0042</b>{% icon "bell" 16 %}</div>
+          <div class="ps-card">
+            <div class="ps-photo">{% include "partials/street_dirty.svg" %}<span class="tag">Reported</span></div>
+            <div class="ps-title">Garbage pile next to the bus stop</div>
+            <div class="ps-meta">Ward 5 · Station Road · 9:12 AM</div>
+          </div>
+          <div class="ps-card">
+            <div class="ps-step done"><span class="d">✓</span><div><b>Received</b><span>Sent to Ward 5 team</span></div><time>9:12</time></div>
+            <div class="ps-step done"><span class="d">✓</span><div><b>Work in progress</b><span>Truck on the way</span></div><time>11:40</time></div>
+            <div class="ps-step now"><span class="d"></span><div><b>Cleaned</b><span>Waiting for after photo</span></div><time>—</time></div>
+          </div>
+          <div class="ps-tabbar">{% icon "home" 18 %}{% icon "map" 18 %}<span class="plus">{% icon "camera" 18 %}</span>{% icon "list" 18 %}{% icon "user" 18 %}</div>
+        </div>
+      </div>
+      </div>
+      <div class="mock-note n1"><span class="ic" style="background:var(--red-50);color:var(--red)">{% icon "pin" 17 %}</span><span>Location attached<small>23.2599, 77.4126</small></span></div>
+      <div class="mock-note n2"><span class="ic" style="background:var(--brand);color:#fff">{% icon "check" 17 %}</span><span>Spot cleaned<small>6 hours after reporting</small></span></div>
+    </div>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- category strip #}
+<section style="padding:22px 0;border-bottom:1px solid var(--line-2)">
+  <div class="marquee" aria-label="Things you can report">
+    <div class="marquee-track">
+      {% for i in "12" %}{% for cat in categories %}<span class="chip lg" {% if forloop.parentloop.counter == 2 %}aria-hidden="true"{% endif %}><span style="color:{{ cat.color }}">{% icon cat.icon 15 %}</span> {{ cat.name }}</span>{% endfor %}{% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- numbers #}
+<section class="section-sm">
+  <div class="container">
+    <div class="stats" data-reveal>
+      <div class="stat"><div class="num" data-count="{{ stats.total }}">{{ stats.total }}</div><div class="lbl">complaints filed</div></div>
+      <div class="stat"><div class="num" data-count="{{ stats.resolved }}">{{ stats.resolved }}</div><div class="lbl">spots cleaned, with photo proof</div></div>
+      <div class="stat"><div class="num" data-count="{{ stats.citizens }}">{{ stats.citizens }}</div><div class="lbl">citizens reporting</div></div>
+      <div class="stat"><div class="num">{% if stats.avg_hours is not None %}<span data-count="{{ stats.avg_hours }}">{{ stats.avg_hours }}</span><small>hrs</small>{% else %}—{% endif %}</div><div class="lbl">average time to clean</div></div>
+    </div>
+  </div>
+</section>
+
+
+{# ---------------------------------------------------------------- crossing bands #}
+<div class="bands" aria-hidden="true">
+  <div class="band two"><div class="band-track">{% for i in "12" %}<span>Cleaner wards</span><span>Faster clean-ups</span><span>Photo proof</span><span>Fixed deadlines</span><span>Public ranking</span>{% endfor %}</div></div>
+  <div class="band one"><div class="band-track">{% for i in "12" %}<span>Snap</span><span class="o">Report</span><span><em>Track</em></span><span class="o">Clean</span><span>Rate</span><span class="o"><em>Repeat</em></span>{% endfor %}</div></div>
+</div>
+
+{# ---------------------------------------------------------------- problem vs solution #}
+<section class="section" style="padding-top:40px">
+  <div class="container">
+    <div class="head" data-reveal>
+      <span class="kicker">Why we built this</span>
+      <h2 data-words>Most complaints about garbage <em class="red">go nowhere.</em></h2>
+      <p>A phone call gets lost, a letter sits in a file, and nobody tells you what happened. SaafShehar puts every complaint on record, with a deadline and a person responsible.</p>
+    </div>
+    <div class="compare-cols">
+      <div class="col-card bad" data-reveal>
+        <h3>The usual way</h3>
+        <ul>
+          <li>{% icon "x" 18 %} You don't know who to call, or the line is busy</li>
+          <li>{% icon "x" 18 %} No reference number, so you can't follow up</li>
+          <li>{% icon "x" 18 %} No deadline. It gets done "soon"</li>
+          <li>{% icon "x" 18 %} "Done" with no proof that anyone came</li>
+          <li>{% icon "x" 18 %} The city never sees which areas suffer most</li>
+        </ul>
+      </div>
+      <div class="col-card good" data-reveal style="--d:.08s">
+        <h3>With SaafShehar</h3>
+        <ul>
+          <li>{% icon "check" 18 %} One photo and a tap. It goes to your ward's team</li>
+          <li>{% icon "check" 18 %} A complaint number like SS-2026-0042 to track anytime</li>
+          <li>{% icon "check" 18 %} Every type of problem has a fixed clean-up deadline</li>
+          <li>{% icon "check" 18 %} "Cleaned" needs an after photo. You can reopen if it isn't</li>
+          <li>{% icon "check" 18 %} Ward-wise reports show where help is needed</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- how it works (pinned, horizontal) #}
+<section class="how" id="how">
+  <div class="how-wrap">
+    <div class="container head" style="margin-bottom:40px">
+      <span class="kicker">How it works</span>
+      <h2 data-words>Four steps, about <em>thirty seconds.</em></h2>
+      <p>Keep scrolling. Each step slides in as you go.</p>
+    </div>
+    <div class="how-track">
+      <div class="how-card"><div class="n">01</div><span class="art">{% icon "camera" 34 %}</span><h3>Take a photo</h3><p>Open SaafShehar on your phone and photograph the problem. We check it's a real, clear image.</p></div>
+      <div class="how-card"><div class="n">02</div><span class="art">{% icon "pin" 34 %}</span><h3>Add the location</h3><p>Tap "Locate" for exact GPS, then pick your ward and add a landmark the team will recognise.</p></div>
+      <div class="how-card red"><div class="n">03</div><span class="art">{% icon "truck" 34 %}</span><h3>Follow the progress</h3><p>Received, work in progress, cleaned. You get a notification every time something changes.</p></div>
+      <div class="how-card"><div class="n">04</div><span class="art">{% icon "star" 34 %}</span><h3>Check and rate</h3><p>Compare the before and after photos. Rate the work, or reopen it within 7 days if it isn't clean.</p></div>
+      <div class="how-card light"><h3>Ready to try it?</h3><p>It takes less time than making a phone call.</p><a href="{% url 'complaints:new' %}" class="btn btn-brand btn-lg">{% icon "camera" 17 %} Report a problem</a></div>
+    </div>
+    <div class="how-progress"><i></i></div>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- proof #}
+<section class="section">
+  <div class="container split">
+    <div data-reveal>
+      <span class="kicker">Proof, not promises</span>
+      <h2 data-words>Nothing is marked clean <em>without a photo.</em></h2>
+      <p class="mt-2" style="font-size:1.08rem">The municipal team has to upload a photo of the cleaned spot before a complaint can be closed. Drag the slider to compare.</p>
+      <ul class="checks">
+        <li>{% icon "check" 17 %} After photo is required to close a complaint</li>
+        <li>{% icon "check" 17 %} Rejections always come with a written reason</li>
+        <li>{% icon "check" 17 %} Not satisfied? Reopen once, within 7 days</li>
+        <li>{% icon "check" 17 %} Every clean-up can be rated from 1 to 5 stars</li>
+      </ul>
+    </div>
+    <div data-reveal style="--d:.08s">
+      <div class="compare" data-clip data-compare tabindex="0" aria-label="Before and after comparison. Use arrow keys to move.">
+        {% if showcase %}
+          <img src="{{ showcase.photo.url }}" alt="Before cleaning">
+          <img class="after" src="{{ showcase.after_photo.url }}" alt="After cleaning">
+        {% else %}
+          <div class="ph">{% include "partials/street_dirty.svg" %}</div>
+          <div class="ph after">{% include "partials/street_clean.svg" %}</div>
+        {% endif %}
+        <span class="tag b">Before</span><span class="tag a">After</span>
+        <div class="handle"><span>{% icon "arrow-left" 14 %}{% icon "arrow-right" 14 %}</span></div>
+      </div>
+      <p class="tiny muted mt-1">{% if showcase %}{{ showcase.code }} · {{ showcase.category.name }} · Ward {{ showcase.ward.number }}{% else %}Illustration. Real before and after photos appear here once spots are cleaned.{% endif %}</p>
+    </div>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- for the city #}
+<section class="section dark" id="city">
+  <div class="container split wide-r">
+    <div data-reveal>
+      <span class="kicker">For the municipal team</span>
+      <h2 data-words>One screen for every complaint <em>in the city.</em></h2>
+      <p class="mt-2" style="font-size:1.06rem">Officers see what's new, what's late and where problems keep coming back, then act on it in a couple of clicks.</p>
+      <ul class="checks" style="color:#C6D1CB">
+        <li style="color:#C6D1CB">{% icon "check" 17 %} Overdue complaints are flagged in red automatically</li>
+        <li style="color:#C6D1CB">{% icon "check" 17 %} Filter by ward, category, priority or upvotes</li>
+        <li style="color:#C6D1CB">{% icon "check" 17 %} Trends by day, category and ward</li>
+        <li style="color:#C6D1CB">{% icon "check" 17 %} Export to CSV for weekly reports</li>
+      </ul>
+    </div>
+    <div class="dash-mock" data-clip data-speed="-0.06" aria-hidden="true">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <div class="body">
+        <div class="sidebar"><span class="on"></span><span></span><span></span><span></span><span style="width:60%"></span></div>
+        <div class="main">
+          <div class="dm-kpis">
+            <div class="dm-kpi"><b>128</b><span>Open now</span></div>
+            <div class="dm-kpi"><b style="color:var(--brand)">86%</b><span>Cleaned on time</span></div>
+            <div class="dm-kpi"><b style="color:var(--red)">7</b><span>Overdue</span></div>
+          </div>
+          <div class="dm-chart"><i style="height:40%"></i><i style="height:55%"></i><i style="height:35%"></i><i style="height:70%"></i><i style="height:60%"></i><i class="hot" style="height:90%"></i><i style="height:50%"></i><i style="height:65%"></i><i style="height:45%"></i><i class="hot" style="height:80%"></i></div>
+          <div class="dm-row late"><span class="ph"></span><span><b>Drain choked near school</b><br><span class="muted">Ward 3 · 6h past deadline</span></span><span class="st" style="background:var(--red-50);color:var(--red)">Overdue</span></div>
+          <div class="dm-row"><span class="ph"></span><span><b>Bin overflowing at market</b><br><span class="muted">Ward 5 · 14 upvotes</span></span><span class="st" style="background:var(--amber-50);color:var(--amber)">In progress</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- categories #}
+<section class="section">
+  <div class="container">
+    <div class="head" data-reveal>
+      <span class="kicker">What you can report</span>
+      <h2 data-words>Every kind of mess has <em>a deadline.</em></h2>
+      <p>Urgent problems like burning garbage get hours, not days. If the deadline passes, the complaint is flagged for the team.</p>
+    </div>
+    <div class="cat-grid" data-stagger=".04">
+      {% for cat in categories %}
+      <div class="cat-card" style="--c:{{ cat.color }}">
+        <span class="sla">{{ cat.sla_hours }} hrs</span>
+        <div class="ic">{% icon cat.icon 22 %}</div>
+        <div><h3>{{ cat.name }}</h3><p>{{ cat.description }}</p></div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- recently cleaned #}
+{% if recent_cleaned %}
+<section class="section paper">
+  <div class="container">
+    <div class="flex between wrap mb-3" data-reveal>
+      <div><span class="kicker">Recently cleaned</span><h2 data-words>Before and after, <em>this week.</em></h2></div>
+      <a href="{% url 'core:track' %}" class="btn btn-outline">Track a complaint {% icon "arrow-right" 15 "go" %}</a>
+    </div>
+    <div class="cleaned-grid" data-stagger=".06">
+      {% for c in recent_cleaned %}
+      <div class="cleaned">
+        <div class="pair"><img src="{{ c.photo.url }}" alt="Before" loading="lazy"><img src="{{ c.after_photo.url }}" alt="After" loading="lazy"></div>
+        <div class="cap"><b>{{ c.title }}</b><span>{{ c.category.name }} · Ward {{ c.ward.number }} · cleaned in {{ c.resolution_hours }} hrs</span></div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# ---------------------------------------------------------------- ward ranking #}
+<section class="section {% if not recent_cleaned %}paper{% endif %}">
+  <div class="container split">
+    <div data-reveal>
+      <span class="kicker">Ward ranking</span>
+      <h2 data-words>A little <em>friendly competition.</em></h2>
+      <p class="mt-2" style="font-size:1.08rem">Wards are ranked by the share of complaints they actually clean. It's public, so everyone can see who's keeping up.</p>
+      <a href="{% url 'core:leaderboard' %}" class="btn mt-2">{% icon "trophy" 16 %} See the full ranking</a>
+    </div>
+    <div class="rank" data-stagger=".05">
+      {% for w in top_wards %}
+        <div class="rank-row"><span class="pos">{{ forloop.counter }}</span><div><b>Ward {{ w.number }} · {{ w.name }}</b><div class="bar-line mt-1"><i data-w="{{ w.score }}"></i></div></div><b class="text-brand">{{ w.score }}%</b></div>
+      {% empty %}
+        <div class="card card-pad"><h3>The ranking starts with the first complaint.</h3><p class="muted mb-0 mt-1">Report a problem in your ward and it will appear here.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- install #}
+<section class="section-sm">
+  <div class="container">
+    <div class="install" data-grow>
+      <div>
+        <span class="kicker" style="color:#F2B33D">No app store needed</span>
+        <h2 data-words>Keep it on your <em>home screen.</em></h2>
+        <ol>
+          <li>Open SaafShehar in Chrome or Safari on your phone</li>
+          <li>Tap the menu (⋮) or Share button</li>
+          <li>Choose "Add to Home screen"</li>
+        </ol>
+        <p class="mt-2 mb-0" style="color:#A9C6B8">It opens full-screen, like an app, and uses very little data.</p>
+      </div>
+      <div class="icons" aria-hidden="true">
+        <div class="app-icon"><span class="dim"></span>Camera</div>
+        <div class="app-icon"><span><img src="{% static 'img/logo.svg' %}" alt="" style="width:52px"></span>SaafShehar</div>
+        <div class="app-icon"><span class="dim"></span>Maps</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- faq #}
+<section class="section" id="faq">
+  <div class="container">
+    <div class="head center" data-reveal><span class="kicker">Questions</span><h2 data-words>Things people <em>usually ask.</em></h2></div>
+    <div class="faq" data-reveal>
+      <details><summary>Does it cost anything? {% icon "plus" 18 %}</summary><p>No. Reporting, tracking and rating are free for every citizen.</p></details>
+      <details><summary>Which photos are accepted? {% icon "plus" 18 %}</summary><p>Clear JPG, PNG or WEBP photos up to 5 MB, at least 200 pixels on each side. We check the file really is an image.</p></details>
+      <details><summary>How many complaints can I file? {% icon "plus" 18 %}</summary><p>Up to 5 in 24 hours. If you already reported the same kind of problem in the same ward today, we'll point you to that complaint so the team doesn't get duplicates.</p></details>
+      <details><summary>What if it isn't really clean? {% icon "plus" 18 %}</summary><p>Open the complaint and tap "Reopen" within 7 days. Tell us what's still wrong and the team is alerted again.</p></details>
+      <details><summary>Can I check a complaint without signing in? {% icon "plus" 18 %}</summary><p>Yes. Enter the complaint number on the Track page, for example SS-2026-0001.</p></details>
+      <details><summary>Who can see my name and phone number? {% icon "plus" 18 %}</summary><p>Only the municipal team. Other citizens only see your first name on complaints in the community list.</p></details>
+    </div>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- cta #}
+<section class="section-sm pb">
+  <div class="container">
+    <div class="cta" data-grow>
+      <h2 data-words>Your street deserves better. <em>Start with one photo.</em></h2>
+      <p>Create a free account in under a minute.</p>
+      <div class="actions">
+        <a href="{% url 'accounts:signup' %}" class="btn btn-brand btn-lg">Create free account {% icon "arrow-right" 17 "go" %}</a>
+        <a href="{% url 'core:track' %}" class="btn btn-lg" style="background:transparent;border-color:rgba(255,255,255,.3)">Track a complaint</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

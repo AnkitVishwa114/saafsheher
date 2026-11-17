@@ -1,0 +1,21 @@
+{% extends base_template|default:"base.html" %}
+{# PAGE: NOTIFICATIONS | view: accounts/views.py -> notifications | URL: /accounts/notifications/ #}
+{% load ss %}
+{% block title %}Notifications{% endblock %}
+{% block crumb %}Notifications{% endblock %}
+{% block content %}
+<div class="container narrow pb">
+  <div class="page-head"><span class="kicker" data-reveal>Inbox</span><h1 data-words>Notifications</h1><p data-reveal>Every update about your complaints, in one place.</p></div>
+  <div class="card" data-reveal>
+    {% for n in items %}
+      <a href="{{ n.link|default:'#' }}" class="notif {% if not n.is_read %}unread{% endif %}">
+        <span class="n-ico">{% icon n.icon 19 %}</span>
+        <div style="flex:1;min-width:0"><div class="strong">{{ n.title }}</div>{% if n.body %}<div class="small muted">{{ n.body }}</div>{% endif %}<div class="tiny faint strong mt-1">{{ n.created_at|timesince }} ago</div></div>
+        {% if not n.is_read %}<span class="badge t-green">New</span>{% endif %}
+      </a>
+    {% empty %}
+      {% include "partials/empty.html" with title="All quiet here" text="You'll get an alert when the team starts work, cleans the spot or replies." %}
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

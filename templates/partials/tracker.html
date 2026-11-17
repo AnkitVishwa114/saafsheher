@@ -1,0 +1,8 @@
+{% load ss %}
+{# PAGE: 3-step progress TRACKER: Received -> Work in progress -> Cleaned. #}
+<div class="tracker">
+  <div class="fill" data-w="{% if c.stage == 0 %}0{% elif c.stage == 1 %}33{% else %}66.6{% endif %}"></div>
+  <div class="t-step {% if c.stage > 0 %}done{% else %}current{% endif %}"><div class="t-dot">{% if c.status == 'REOPENED' %}{% icon "refresh" 20 %}{% else %}{% icon "inbox" 20 %}{% endif %}</div><b>{% if c.status == 'REOPENED' %}Reopened{% else %}Received{% endif %}</b><span>{{ c.created_at|date:"d M, h:i A" }}</span></div>
+  <div class="t-step {% if c.stage > 1 and c.status != 'REJECTED' %}done{% elif c.stage == 1 %}current{% endif %}"><div class="t-dot">{% icon "truck" 20 %}</div><b>Work in progress</b><span>Team on the way</span></div>
+  <div class="t-step {% if c.status == 'RESOLVED' %}done{% elif c.status == 'REJECTED' %}fail{% endif %}"><div class="t-dot">{% if c.status == 'REJECTED' %}{% icon "x" 20 %}{% else %}{% icon "check" 20 %}{% endif %}</div><b>{% if c.status == 'REJECTED' %}Rejected{% else %}Cleaned{% endif %}</b><span>{% if c.resolved_at %}{{ c.resolved_at|date:"d M, h:i A" }}{% else %}SLA {{ c.category.sla_hours }} h{% endif %}</span></div>
+</div>

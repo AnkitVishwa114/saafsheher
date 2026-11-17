@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{# PAGE: SERVER ERROR (500) | view: core/views.py -> error_500 #}
+{% load ss %}
+{% block title %}Something went wrong on our side.{% endblock %}
+{% block content %}
+<div class="error-page container">
+  <div class="code" data-reveal>500</div>
+  <h2 class="mt-2" data-words>Something went wrong on our side.</h2>
+  <p class="muted mt-2">Please try again in a moment.</p>
+  <div class="actions mt-3" style="justify-content:center"><a href="{% url 'core:home' %}" class="btn btn-brand">Go home</a><a href="{% url 'core:track' %}" class="btn btn-outline">Track a complaint</a></div>
+</div>
+{% endblock %}

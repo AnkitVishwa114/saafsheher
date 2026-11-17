@@ -1,0 +1,18 @@
+{# PAGE: 'Nothing here yet' box with a small bin drawing. #}
+<div class="empty">
+  <svg class="art" viewBox="0 0 170 130" fill="none" aria-hidden="true">
+    <ellipse cx="85" cy="118" rx="58" ry="6" fill="#F0EDE6"/>
+    <g class="bin">
+      <path d="M50 46h70l-6 62a6 6 0 0 1-6 5H62a6 6 0 0 1-6-5z" fill="#CFEADC"/>
+      <rect x="44" y="36" width="82" height="12" rx="6" fill="#0F7A56"/>
+      <path d="M74 36v-6a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4v6" stroke="#0F7A56" stroke-width="5" stroke-linecap="round"/>
+      <path d="M75 72c4 6 16 6 20 0" stroke="#0C6346" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="75" cy="62" r="3.5" fill="#15211B"/><circle cx="95" cy="62" r="3.5" fill="#15211B"/>
+    </g>
+    <path class="spark" d="M138 22l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#F2B33D"/>
+    <circle class="spark" cx="28" cy="50" r="5" fill="#DC3B3B"/><circle class="spark" cx="146" cy="80" r="4" fill="#0F7A56" opacity=".5"/>
+  </svg>
+  <h3>{{ title }}</h3>
+  <p>{{ text }}</p>
+  {% if url %}<a href="{{ url }}" class="btn btn-brand">{{ cta }}</a>{% endif %}
+</div>

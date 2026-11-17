@@ -1,0 +1,97 @@
+{% extends "panel/base.html" %}
+{# PAGE: ADMIN DASHBOARD (KPIs + charts) | view: core/panel.py -> dashboard | URL: /admin-panel/ #}
+{% load ss %}
+{% block title %}Dashboard{% endblock %}
+{% block crumb %}Dashboard{% endblock %}
+{% block content %}
+<section class="welcome" data-reveal>
+  <svg class="orb" viewBox="0 0 200 200" fill="none" aria-hidden="true"><circle cx="100" cy="100" r="80" stroke="rgba(255,255,255,.12)" stroke-width="16"/><circle class="ring" cx="100" cy="100" r="80" stroke="#F2B33D" stroke-width="16" stroke-linecap="round" stroke-dasharray="{% widthratio kpi.rate 100 503 %} 503" transform="rotate(-90 100 100)"/><text class="big" x="100" y="100" text-anchor="middle" fill="#fff">{{ kpi.rate }}%</text><text class="lbl" x="100" y="124" text-anchor="middle" fill="#A4B1AA">resolved</text></svg>
+  <span class="chip" style="background:rgba(255,255,255,.16);color:#fff">{% icon "shield" 13 %} Municipal control room</span>
+  {% now "A" as ampm %}<h2 class="mt-2" data-words>Good {% if ampm == "AM" %}morning{% else %}evening{% endif %}, <em>{{ user.first_name|default:"Admin" }}.</em></h2>
+  <p>{% if kpi.overdue %}{{ kpi.overdue }} complaint{{ kpi.overdue|pluralize }} {{ kpi.overdue|pluralize:"is,are" }} past the deadline. Start there.{% elif kpi.open %}{{ kpi.open }} open complaint{{ kpi.open|pluralize }}, all within deadline. Nice!{% else %}No open complaints. The city is spotless. {% endif %}</p>
+  <div class="actions">
+    <a href="{% url 'panel:complaints' %}?status=RECEIVED" class="btn btn-lime">{% icon "inbox" 17 %} New complaints</a>
+    {% if kpi.overdue %}<a href="{% url 'panel:complaints' %}?overdue=1" class="btn btn-outline">{% icon "clock" 17 %} Overdue ({{ kpi.overdue }})</a>{% endif %}
+  </div>
+</section>
+
+{% if latest %}
+<div class="ticker" data-reveal>
+  <span class="lab"><i></i><span>Incoming</span></span>
+  <div class="tk"><div class="tk-track">{% for r in "12" %}{% for c in latest %}<a href="{{ c.get_admin_url }}"{% if forloop.parentloop.counter == 2 %} aria-hidden="true" tabindex="-1"{% endif %}><b>{{ c.code }}</b> {{ c.title|truncatechars:38 }} · W{{ c.ward.number }} · {{ c.created_at|timesince }} ago</a>{% endfor %}{% endfor %}</div></div>
+</div>
+{% endif %}
+
+<div class="kpis mb-3" data-stagger=".05">
+  <div class="kpi"><div class="k-ico">{% icon "inbox" 19 %}</div><div class="val" data-count="{{ kpi.total }}">{{ kpi.total }}</div><div class="lbl">Total complaints</div></div>
+  <a href="{% url 'panel:complaints' %}?status=IN_PROGRESS" class="kpi c-amber"><div class="k-ico">{% icon "truck" 19 %}</div><div class="val" data-count="{{ kpi.open }}">{{ kpi.open }}</div><div class="lbl">Open now</div></a>
+  <a href="{% url 'panel:complaints' %}?status=RESOLVED" class="kpi"><div class="k-ico">{% icon "check" 19 %}</div><div class="val" data-count="{{ kpi.resolved }}">{{ kpi.resolved }}</div><div class="lbl">Cleaned</div></a>
+  <a href="{% url 'panel:complaints' %}?overdue=1" class="kpi c-red {% if kpi.overdue %}alert{% endif %}"><div class="k-ico">{% icon "clock" 19 %}</div><div class="val" data-count="{{ kpi.overdue }}">{{ kpi.overdue }}</div><div class="lbl">Overdue</div></a>
+  <div class="kpi c-sky"><div class="k-ico">{% icon "zap" 19 %}</div><div class="val">{% if kpi.avg_hours is not None %}<span data-count="{{ kpi.avg_hours }}">{{ kpi.avg_hours }}</span><small>h</small>{% else %}—{% endif %}</div><div class="lbl">Avg. clean-up time</div></div>
+  <div class="kpi c-amber"><div class="k-ico">{% icon "star" 19 %}</div><div class="val">{% if kpi.rating %}{{ kpi.rating|floatformat:1 }}<small>/5</small>{% else %}—{% endif %}</div><div class="lbl">Citizen rating</div></div>
+</div>
+
+<div class="grid g-side">
+  <div class="stack">
+    <div class="card" data-reveal>
+      <div class="card-head"><h3>{% icon "chart" 18 "text-brand" %} Last 14 days</h3><span class="sub">filed vs cleaned</span></div>
+      <div class="card-body"><canvas id="cTrend" height="120"></canvas></div>
+    </div>
+    <div class="grid g2">
+      <div class="card" data-reveal>
+        <div class="card-head"><h3>{% icon "layers" 18 "text-brand" %} By category</h3></div>
+        <div class="card-body"><canvas id="cCats" height="230"></canvas></div>
+      </div>
+      <div class="card" data-reveal>
+        <div class="card-head"><h3>{% icon "map" 18 "text-brand" %} By ward</h3><span class="sub">open vs cleaned</span></div>
+        <div class="card-body"><canvas id="cWards" height="230"></canvas></div>
+      </div>
+    </div>
+    <div class="card" data-reveal>
+      <div class="card-head"><h3>{% icon "inbox" 18 "text-brand" %} Latest complaints</h3><a href="{% url 'panel:complaints' %}" class="btn btn-ghost btn-sm">All {% icon "arrow-right" 14 "go" %}</a></div>
+      {% for c in latest %}
+        <a href="{{ c.get_admin_url }}" class="list-row"><img class="thumb" src="{{ c.photo.url }}" alt=""><div class="grow"><div class="t">{{ c.title }}</div><div class="s">{{ c.code }} · {{ c.category.name }} · Ward {{ c.ward.number }} · {{ c.created_at|timesince }} ago</div></div>{% if c.is_overdue %}<span class="badge t-red">Overdue</span>{% endif %}{% status c %}</a>
+      {% empty %}
+        {% include "partials/empty.html" with title="No complaints yet" text="When citizens report problems, they appear here instantly." %}
+      {% endfor %}
+    </div>
+  </div>
+  <div class="stack sticky">
+    <div class="card" data-reveal>
+      <div class="card-head"><h3>{% icon "clock" 18 "text-red" %} Overdue first</h3></div>
+      {% for c in overdue %}
+        <a href="{{ c.get_admin_url }}" class="list-row"><div class="grow"><div class="t">{{ c.title }}</div><div class="s">{{ c.code }} · {{ c.hours_left|cut:"-" }}h past deadline</div></div><span class="badge t-red solid">!</span></a>
+      {% empty %}
+        <div class="card-body small muted">{% icon "check" 16 "text-brand" %} Nothing overdue. Great work!</div>
+      {% endfor %}
+    </div>
+    <div class="card" data-reveal>
+      <div class="card-head"><h3>{% icon "trophy" 18 "text-amber" %} Top wards</h3><a href="{% url 'panel:wards' %}" class="btn btn-ghost btn-sm">All</a></div>
+      <div class="card-body rank" style="gap:8px">
+        {% for w in top_wards %}<div class="rank-row" style="padding:10px 12px"><span class="pos" style="width:34px;height:34px;font-size:.9rem">{{ forloop.counter }}</span><div class="small strong">W{{ w.number }} · {{ w.name }}<div class="bar-line mt-1"><i data-w="{{ w.score }}"></i></div></div><b class="small text-brand">{{ w.score }}%</b></div>
+        {% empty %}<p class="small muted mb-0">No data yet.</p>{% endfor %}
+      </div>
+    </div>
+    <div class="card card-pad" data-reveal>
+      <div class="flex between"><div><div class="tiny muted strong">Filed today</div><div class="display strong" style="font-size:2rem" data-count="{{ kpi.today }}">{{ kpi.today }}</div></div><div class="right"><div class="tiny muted strong">Citizens</div><div class="display strong" style="font-size:2rem" data-count="{{ kpi.citizens }}">{{ kpi.citizens }}</div></div></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ chart_json|json_script:"dash-data" }}
+<script>
+  const D = JSON.parse(JSON.parse(document.getElementById("dash-data").textContent));
+  const t = document.getElementById("cTrend"), ctx = t.getContext("2d");
+  const g = ctx.createLinearGradient(0, 0, 0, 260); g.addColorStop(0, "rgba(15,122,86,.28)"); g.addColorStop(1, "rgba(15,122,86,0)");
+  SSChart(t, { type: "line", data: { labels: D.days, datasets: [
+    { label: "Filed", data: D.filed, borderColor: "#DC3B3B", backgroundColor: "transparent", tension: .4, borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 6, borderDash: [6, 5] },
+    { label: "Cleaned", data: D.solved, borderColor: "#0F7A56", backgroundColor: g, fill: true, tension: .4, borderWidth: 3, pointRadius: 0, pointHoverRadius: 6 } ] },
+    options: { interaction: { mode: "index", intersect: false }, plugins: { legend: { position: "bottom" } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { grid: { display: false } } } } });
+  SSChart(document.getElementById("cCats"), { type: "doughnut", data: { labels: D.cats.labels, datasets: [{ data: D.cats.n, backgroundColor: D.cats.colors, borderWidth: 0, spacing: 3, borderRadius: 8 }] }, options: { cutout: "70%", animation: { animateRotate: true, animateScale: true }, plugins: { legend: { position: "bottom" } } } });
+  SSChart(document.getElementById("cWards"), { type: "bar", data: { labels: D.wards.labels, datasets: [
+    { label: "Open", data: D.wards.open, backgroundColor: "#DC3B3B", borderRadius: 6, maxBarThickness: 20 },
+    { label: "Cleaned", data: D.wards.done, backgroundColor: "#0F7A56", borderRadius: 6, maxBarThickness: 20 } ] },
+    options: { plugins: { legend: { position: "bottom" } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { grid: { display: false } } } } });
+</script>
+{% endblock %}

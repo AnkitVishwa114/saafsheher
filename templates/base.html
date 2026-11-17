@@ -1,0 +1,32 @@
+{% load static ss %}<!doctype html>
+{# PAGE: BASE LAYOUT for the public site and citizen pages: <head>, header, messages, footer, scripts. Other pages extend this file. #}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>document.documentElement.classList.add("js")</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}{{ SITE_TAGLINE }}{% endblock %} · {{ SITE_NAME }}</title>
+  <meta name="description" content="SaafShehar: report garbage with a photo, follow the clean-up step by step, and see which ward keeps its streets cleanest.">
+  <meta name="theme-color" content="#0F7A56">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/logo.svg' %}">
+  <link rel="apple-touch-icon" href="{% static 'img/logo.svg' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% if user.is_authenticated and not user.is_admin_role %}has-tabbar{% endif %} {% block body_class %}{% endblock %}">
+  {% block header %}{% include "partials/header.html" %}{% endblock %}
+  {% include "partials/messages.html" %}
+  {% block shell_open %}{% endblock %}<main>{% block content %}{% endblock %}</main>{% block shell_close %}{% endblock %}
+  {% block footer %}{% include "partials/footer.html" %}{% endblock %}
+  {% if user.is_authenticated and not user.is_admin_role %}{% include "partials/tabbar.html" %}{% endif %}
+  <script src="{% static 'vendor/gsap.min.js' %}" defer></script>
+  <script src="{% static 'vendor/ScrollTrigger.min.js' %}" defer></script>
+  <script src="{% static 'js/app.js' %}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

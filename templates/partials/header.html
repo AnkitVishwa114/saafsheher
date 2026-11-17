@@ -1,0 +1,50 @@
+{% load static ss %}
+{# PAGE: Top HEADER of the website: logo, menu links, bell, Report button, account (profile) menu. #}
+<header class="site-header">
+  <div class="container nav">
+    <a href="{% url 'core:home' %}" class="brand" aria-label="SaafShehar home"><img src="{% static 'img/logo.svg' %}" alt=""><span>Saaf<b>Shehar</b></span></a>
+    <nav class="nav-links" aria-label="Main">
+      {% if user.is_authenticated and not user.is_admin_role %}
+        <a href="{% url 'core:dashboard' %}" class="{% active 'core:dashboard' %}">Home</a>
+        <a href="{% url 'complaints:mine' %}" class="{% active 'complaints:mine' 'complaints:detail' %}">My complaints</a>
+        <a href="{% url 'complaints:feed' %}" class="{% active 'complaints:feed' %}">Around me</a>
+        <a href="{% url 'core:leaderboard' %}" class="{% active 'core:leaderboard' %}">Ward ranking</a>
+      {% else %}
+        <a href="{% url 'core:home' %}#how">How it works</a>
+        <a href="{% url 'core:home' %}#city">For the city</a>
+        <a href="{% url 'core:track' %}" class="{% active 'core:track' %}">Track a complaint</a>
+        <a href="{% url 'core:leaderboard' %}" class="{% active 'core:leaderboard' %}">Ward ranking</a>
+      {% endif %}
+    </nav>
+    <div class="nav-right">
+      {% if user.is_authenticated %}
+        {% if user.is_admin_role %}<a href="{% url 'panel:dashboard' %}" class="btn btn-outline btn-sm hide-sm">{% icon "grid" 15 %} Admin panel</a>{% endif %}
+        <a href="{% url 'accounts:notifications' %}" class="icon-btn hide-sm" aria-label="Notifications">{% icon "bell" 18 %}{% if unread_count %}<span class="dot-count">{{ unread_count }}</span>{% endif %}</a>
+        {% if not user.is_admin_role %}<a href="{% url 'complaints:new' %}" class="btn btn-brand btn-sm hide-sm">{% icon "camera" 15 %} Report</a>{% endif %}
+        <div class="account">
+          {# PROFILE PILL: avatar with online dot + name + role chip; click opens the account menu below #}
+          <button class="account-btn" type="button" aria-haspopup="true" aria-label="Account menu">
+            <span class="ab-av">{% avatar user %}<i class="ab-dot"></i></span>
+            <span class="who"><b>{{ user.first_name|default:"Account" }}</b><span class="role-chip {% if user.is_admin_role %}admin{% endif %}"><i></i>{{ user.get_role_display }}</span></span>
+            <span class="ab-chev hide-sm">{% icon "chevron-down" 14 %}</span>
+          </button>
+          <div class="menu" role="menu">
+            <div class="menu-head">
+              {% avatar user "lg" %}
+              <div class="mh-text"><div class="strong">{{ user.display_name }}</div><div class="tiny muted">{{ user.email }}</div>
+                <span class="role-chip {% if user.is_admin_role %}admin{% endif %}"><i></i>{{ user.get_role_display }}{% if user.ward %} · Ward {{ user.ward.number }}{% endif %}</span></div>
+            </div>
+            {% if user.is_admin_role %}<a href="{% url 'panel:dashboard' %}">{% icon "grid" %} Admin panel</a>{% else %}<a href="{% url 'core:dashboard' %}">{% icon "home" %} My dashboard</a>{% endif %}
+            <a href="{% url 'accounts:profile' %}">{% icon "user" %} Profile & password</a>
+            <a href="{% url 'accounts:notifications' %}">{% icon "bell" %} Notifications</a>
+            <form method="post" action="{% url 'accounts:logout' %}" data-no-loading>{% csrf_token %}<button type="submit">{% icon "logout" %} Sign out</button></form>
+          </div>
+        </div>
+      {% else %}
+        <a href="{% url 'accounts:login' %}" class="btn btn-ghost btn-sm hide-sm">Sign in</a>
+        <a href="{% url 'accounts:signup' %}" class="btn btn-brand btn-sm">Report a problem</a>
+      {% endif %}
+      <button class="icon-btn nav-toggle" type="button" aria-label="Menu">{% icon "menu" 20 %}</button>
+    </div>
+  </div>
+</header>

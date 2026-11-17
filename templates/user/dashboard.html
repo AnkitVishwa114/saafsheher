@@ -1,0 +1,77 @@
+{% extends "user/base.html" %}
+{# PAGE: CITIZEN HOME | view: core/views.py -> citizen_dashboard | URL: /dashboard/ #}
+{% load ss %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="container pb" style="padding-top:26px">
+  <section class="welcome" data-reveal>
+    <svg class="orb" viewBox="0 0 200 200" fill="none" aria-hidden="true"><circle cx="100" cy="100" r="80" stroke="rgba(255,255,255,.12)" stroke-width="16"/><circle class="ring" cx="100" cy="100" r="80" stroke="#F2B33D" stroke-width="16" stroke-linecap="round" stroke-dasharray="{% widthratio counts.resolved counts.total|default:1 503 %} 503" transform="rotate(-90 100 100)"/><text class="big" x="100" y="100" text-anchor="middle" fill="#fff">{% if counts.total %}{% widthratio counts.resolved counts.total 100 %}%{% else %}0%{% endif %}</text><text class="lbl" x="100" y="124" text-anchor="middle" fill="#A4B1AA">cleaned</text></svg>
+    <span class="chip" style="background:rgba(255,255,255,.16);color:#fff">{% icon "pin" 13 %} {% if user.ward %}{{ user.ward }}{% else %}Set your ward in profile{% endif %}</span>
+    <h2 class="mt-2" data-words>Namaste, <em>{{ user.first_name }}.</em></h2>
+    <p>{% if counts.open %}{{ counts.open }} of your complaint{{ counts.open|pluralize }} {{ counts.open|pluralize:"is,are" }} being worked on.{% else %}Spotted a mess today? It takes 30 seconds to report.{% endif %}</p>
+    <div class="actions">
+      <a href="{% url 'complaints:new' %}" class="btn btn-lime btn-lg">{% icon "camera" 18 %} Report a problem</a>
+      <a href="{% url 'complaints:feed' %}" class="btn btn-outline">{% icon "users" 17 %} Community</a>
+    </div>
+  </section>
+
+  {% if live %}
+  <div class="ticker" data-reveal>
+    <span class="lab"><i></i><span>Live in the city</span></span>
+    <div class="tk"><div class="tk-track">{% for r in "12" %}{% for c in live %}<a href="{{ c.get_absolute_url }}"{% if forloop.parentloop.counter == 2 %} aria-hidden="true" tabindex="-1"{% endif %}><b>{{ c.code }}</b> {{ c.title|truncatechars:38 }} · Ward {{ c.ward.number }} · {{ c.get_status_display }}</a>{% endfor %}{% endfor %}</div></div>
+  </div>
+  {% endif %}
+
+  <div class="kpis mb-3" data-stagger=".07">
+    <a href="{% url 'complaints:mine' %}" class="kpi"><div class="k-ico">{% icon "inbox" 19 %}</div><div class="val" data-count="{{ counts.total }}">{{ counts.total }}</div><div class="lbl">Filed by you</div></a>
+    <a href="{% url 'complaints:mine' %}?status=IN_PROGRESS" class="kpi c-amber"><div class="k-ico">{% icon "truck" 19 %}</div><div class="val" data-count="{{ counts.open }}">{{ counts.open }}</div><div class="lbl">Open</div></a>
+    <a href="{% url 'complaints:mine' %}?status=RESOLVED" class="kpi"><div class="k-ico">{% icon "check" 19 %}</div><div class="val" data-count="{{ counts.resolved }}">{{ counts.resolved }}</div><div class="lbl">Cleaned</div></a>
+    <a href="{% url 'complaints:feed' %}" class="kpi c-sky"><div class="k-ico">{% icon "thumbs" 19 %}</div><div class="val" data-count="{{ counts.upvotes }}">{{ counts.upvotes }}</div><div class="lbl">Neighbours you supported</div></a>
+  </div>
+
+  {% if to_rate %}
+  <a href="{{ to_rate.get_absolute_url }}#rate" class="notice green mb-3" data-reveal style="display:flex">{% icon "star" 20 %}<div><b>{{ to_rate.code }} was cleaned! Rate the work.</b><p>Your rating keeps the team accountable.</p></div></a>
+  {% endif %}
+
+  <div class="grid g-side">
+    <div class="stack">
+      <div class="card" data-reveal>
+        <div class="card-head"><h3>{% icon "list" 18 "text-brand" %} Your recent complaints</h3><a class="btn btn-ghost btn-sm" href="{% url 'complaints:mine' %}">See all</a></div>
+        {% for c in recent %}
+          <a href="{{ c.get_absolute_url }}" class="list-row"><img class="thumb" src="{{ c.photo.url }}" alt=""><div class="grow"><div class="t">{{ c.title }}</div><div class="s">{{ c.code }} · {{ c.category.name }} · {{ c.created_at|timesince }} ago</div></div>{% status c %}</a>
+        {% empty %}
+          {% url 'complaints:new' as new_url %}{% include "partials/empty.html" with title="No complaints yet" text="Your first report helps your whole ward. Snap a photo and send it in." url=new_url cta="Report a problem" %}
+        {% endfor %}
+      </div>
+      {% if nearby %}
+      <div data-reveal>
+        <div class="flex between mb-2"><h2 style="font-size:1.55rem">Open in your ward</h2><a href="{% url 'complaints:feed' %}" class="btn btn-ghost btn-sm">More {% icon "arrow-right" 14 "go" %}</a></div>
+        <div class="c-grid">{% for c in nearby %}{% include "partials/complaint_card.html" %}{% endfor %}</div>
+      </div>
+      {% endif %}
+    </div>
+    <div class="stack sticky">
+      {% if ward_stats %}
+      <div class="card card-pad spot" data-reveal style="position:relative;overflow:hidden">
+        <div class="flex between"><span class="kicker" style="margin:0">Your ward</span><span class="badge t-ink">#{{ ward_stats.rank }}</span></div>
+        <h3 class="mt-1">{{ ward_stats.name }}</h3>
+        <div class="display strong mt-2" style="font-size:3rem;line-height:1">{% if ward_stats.score is not None %}<span data-count="{{ ward_stats.score }}">{{ ward_stats.score }}</span>%{% else %}—{% endif %}</div>
+        <div class="small muted strong">complaints cleaned</div>
+        <div class="bar-line mt-2"><i data-w="{{ ward_stats.score|default:0 }}"></i></div>
+        <p class="tiny muted mt-2 mb-0">{{ ward_stats.open }} open · {{ ward_stats.total }} total</p>
+        <a href="{% url 'core:leaderboard' %}" class="btn btn-soft btn-sm btn-block mt-2">{% icon "trophy" 15 %} See ranking</a>
+      </div>
+      {% endif %}
+      <div class="card card-pad" data-reveal>
+        <h4 class="mb-1">{% icon "sparkles" 17 "text-brand" %} Tips for a fast clean-up</h4>
+        <ul class="checks" style="margin:12px 0 0;gap:10px">
+          <li class="small">{% icon "check" 14 %} Take a wide photo that shows the spot</li>
+          <li class="small">{% icon "check" 14 %} Use “My location” for exact GPS</li>
+          <li class="small">{% icon "check" 14 %} Add a landmark the team will know</li>
+        </ul>
+      </div>
+      {% if avg_rating %}<div class="card card-pad center" data-reveal><div class="tiny muted strong">Your average rating given</div><div class="mt-1">{% stars avg_rating 22 %}</div></div>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

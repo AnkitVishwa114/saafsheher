@@ -1,0 +1,103 @@
+{% extends base_template|default:"base.html" %}
+{# PAGE: ONE COMPLAINT (citizen view) | view: complaints/views.py -> detail (+ rate, reopen, upvote) | URL: /complaints/<code>/ #}
+{% load ss %}
+{% block title %}{{ c.code }} · {{ c.title }}{% endblock %}
+{% block celebrate %}{% if just_filed %}1{% else %}0{% endif %}{% endblock %}
+{% block content %}
+<div class="container pb">
+  <div class="page-head">
+    <div class="crumbs" data-reveal>{% if is_owner %}<a href="{% url 'complaints:mine' %}">My complaints</a>{% else %}<a href="{% url 'complaints:feed' %}">Community</a>{% endif %} {% icon "chevron-right" 13 %} {{ c.code }}</div>
+    <div class="row">
+      <div><h1 data-words style="font-size:clamp(1.8rem,3.4vw,2.6rem)">{{ c.title }}</h1>
+        <div class="flex wrap mt-1" data-reveal><span class="chip" style="background:{{ c.category.color }}1a;color:{{ c.category.color }}">{% icon c.category.icon 13 %} {{ c.category.name }}</span><span class="chip">{% icon "pin" 12 %} {{ c.ward }}</span><span class="chip">{{ c.code }}</span><span class="chip pri-{{ c.priority }}">● {{ c.get_priority_display }} priority</span></div></div>
+      {% status c True %}
+    </div>
+  </div>
+
+  {% if just_filed %}<div class="notice green mb-3" data-reveal>{% icon "check" 20 %}<div><b>Complaint filed! Your number is {{ c.code }}</b><p>We'll alert you when the team starts work and when it's cleaned. Anyone can track it on the Track page.</p></div></div>{% endif %}
+  {% if c.status == "REJECTED" %}<div class="notice red mb-3" data-reveal>{% icon "x" 20 %}<div><b>Rejected by the municipal team</b><p>{{ c.admin_note }}</p></div></div>{% endif %}
+  {% if c.is_overdue %}<div class="notice amber mb-3" data-reveal>{% icon "clock" 20 %}<div><b>Past the {{ c.category.sla_hours }}-hour target</b><p>This complaint is overdue and highlighted for the team.</p></div></div>{% endif %}
+
+  <div class="card card-body mb-3" data-reveal>{% include "partials/tracker.html" %}</div>
+
+  <div class="grid g-side">
+    <div class="stack">
+      <div class="card" data-reveal>
+        <div class="card-head"><h3>{% icon "camera" 18 "text-brand" %} {% if c.after_photo %}Before & after{% else %}Photo{% endif %}</h3>{% if c.after_photo %}<span class="sub">drag to compare</span>{% endif %}</div>
+        <div class="card-body">
+          {% if c.after_photo %}
+            <div class="compare" data-compare data-clip><img src="{{ c.photo.url }}" alt="Before"><img class="after" src="{{ c.after_photo.url }}" alt="After"><span class="tag b">Before</span><span class="tag a">After</span><div class="handle"><span>{% icon "arrow-left" 16 %}{% icon "arrow-right" 16 %}</span></div></div>
+          {% else %}
+            <div class="photo-frame" data-clip><img src="{{ c.photo.url }}" alt="{{ c.title }}"></div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="card" data-reveal>
+        <div class="card-head"><h3>{% icon "list" 18 "text-brand" %} Details</h3></div>
+        <div class="card-body">
+          <p style="white-space:pre-line">{{ c.description }}</p>
+          <dl class="kv">
+            <dt>Address</dt><dd>{{ c.address }}{% if c.landmark %} · near {{ c.landmark }}{% endif %} · {{ c.pincode }}</dd>
+            {% if c.map_url %}<dt>Location</dt><dd><a class="text-brand" href="{{ c.map_url }}" target="_blank" rel="noopener">Open in map {% icon "external" 13 %}</a></dd>{% endif %}
+            <dt>Filed</dt><dd>{{ c.created_at|date:"d M Y, h:i A" }}{% if not is_owner %} by {{ c.user.first_name }}{% endif %}</dd>
+            <dt>Target</dt><dd>Clean within {{ c.category.sla_hours }} hours</dd>
+            {% if c.resolution_hours %}<dt>Cleaned in</dt><dd class="text-brand">{{ c.resolution_hours }} hours</dd>{% endif %}
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="stack sticky">
+      {% if is_owner and c.can_rate %}
+      <div class="card" id="rate" data-reveal>
+        <div class="card-head"><h3>{% icon "star" 18 "text-amber" %} Rate the clean-up</h3></div>
+        <div class="card-body">
+          <form method="post" action="{% url 'complaints:rate' c.code %}" class="stack" style="gap:12px">{% csrf_token %}
+            <div class="stars-in" style="justify-content:center">{% for o in rate_form.rating %}{{ o.tag }}<label for="{{ o.id_for_label }}" title="{{ o.choice_label }} stars">{% icon "star" 34 %}</label>{% endfor %}</div>
+            {{ rate_form.feedback }}
+            <button class="btn btn-brand btn-block" type="submit">Submit rating</button>
+          </form>
+        </div>
+      </div>
+      {% elif c.rating %}
+      <div class="card card-pad center" data-reveal><div class="tiny muted strong">Your rating</div><div class="mt-1">{% stars c.rating 26 %}</div>{% if c.feedback %}<p class="small mt-1 mb-0">“{{ c.feedback }}”</p>{% endif %}</div>
+      {% endif %}
+
+      {% if is_owner and c.can_reopen %}
+      <div class="card" data-reveal>
+        <div class="card-head"><h3>{% icon "refresh" 18 "text-coral" %} Not really clean?</h3></div>
+        <div class="card-body">
+          <form method="post" action="{% url 'complaints:reopen' c.code %}" class="stack" style="gap:10px">{% csrf_token %}
+            <div class="field">{{ reopen_form.reason }}</div>
+            <button class="btn btn-outline btn-block" type="submit">Reopen complaint</button>
+            <span class="tiny muted">You can reopen once, within 7 days of cleaning.</span>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if not is_owner and c.is_open %}
+      <div class="card card-pad center" data-reveal>
+        <h4>Facing the same problem?</h4>
+        <p class="small muted">Upvote to push it up the team's list.</p>
+        <form method="post" action="{% url 'complaints:upvote' c.code %}" data-vote data-no-loading>{% csrf_token %}<button class="vote {% if c.voted %}on{% endif %}" type="submit" style="padding:12px 22px;font-size:1rem">{% icon "thumbs" 18 %} Mujhe bhi dikkat hai · <span data-n>{{ c.n_votes }}</span></button></form>
+      </div>
+      {% elif is_owner %}
+      <div class="card card-pad center" data-reveal><div class="display strong" style="font-size:2.4rem" data-count="{{ c.n_votes }}">{{ c.n_votes }}</div><div class="small muted strong">neighbours said “mujhe bhi dikkat hai”</div></div>
+      {% endif %}
+
+      <div class="card" data-reveal>
+        <div class="card-head"><h3>{% icon "clock" 18 "text-brand" %} Timeline</h3></div>
+        <div class="card-body">
+          <ul class="timeline">
+            {% for u in updates %}
+            <li><span class="tl-dot">{% if u.status == "RESOLVED" %}{% icon "check" 16 "text-brand" %}{% elif u.status == "REJECTED" %}{% icon "x" 16 "text-red" %}{% elif u.status == "IN_PROGRESS" %}{% icon "truck" 16 "text-amber" %}{% elif u.status == "REOPENED" %}{% icon "refresh" 16 "text-coral" %}{% else %}{% icon "inbox" 16 "text-brand" %}{% endif %}</span>
+              <b>{{ u.get_status_display }}</b><div class="when">{{ u.created_at|date:"d M Y, h:i A" }}{% if u.by %} · {% if u.by.is_admin_role %}Municipal team{% else %}{{ u.by.first_name }}{% endif %}{% endif %}</div>{% if u.note %}<div class="note">{{ u.note }}</div>{% endif %}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

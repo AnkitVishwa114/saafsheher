@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{# PAGE: TRACK A COMPLAINT | view: core/views.py -> track | URL: /track/ #}
+{% load ss %}
+{% block title %}Track a complaint{% endblock %}
+{% block content %}
+<section class="hero inner">
+  <div class="container narrow center">
+    <span class="kicker" data-reveal>Track a complaint</span>
+    <h1 data-words style="font-size:clamp(2.4rem,5.4vw,4.2rem)">Where's my <em>complaint?</em></h1>
+    <p class="lead" data-reveal style="margin:16px auto 26px">Enter the number you got when you filed it. No sign-in needed.</p>
+    <form method="get" class="hero-track" style="margin:0 auto;max-width:520px" data-reveal data-no-loading>
+      {% icon "search" 19 %}<input type="text" name="code" value="{{ form.code.value|default:'' }}" placeholder="SS-2026-0001" aria-label="Complaint number" autocomplete="off" autofocus>
+      <button class="btn btn-brand btn-sm" type="submit">Track</button>
+    </form>
+    {% if form.errors %}<div class="form-errors mt-2" style="max-width:520px;margin-left:auto;margin-right:auto">{% icon "alert" 18 %} {{ form.errors.code.0 }}</div>{% endif %}
+    {% if not c %}
+    <div class="track-tips">
+      <div class="tip"><span class="n">01</span><b>Find your number</b><p>It's on the confirmation screen and in your notifications, like SS-2026-0001.</p></div>
+      <div class="tip"><span class="n">02</span><b>See every step</b><p>Received, work in progress, cleaned. Each step shows the time it happened.</p></div>
+      <div class="tip"><span class="n">03</span><b>Check the proof</b><p>Once cleaned, the team's after photo appears next to yours.</p></div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+<div class="bands mini" aria-hidden="true"><div class="band one"><div class="band-track">{% for r in "12" %}<span>Snap</span><span class="o">Report</span><span><em>Track</em></span><span class="o">Clean</span><span>Rate</span><span class="o"><em>Repeat</em></span>{% endfor %}</div></div></div>
+{% if c %}
+<div class="container mid pb" style="padding-top:8px">
+  <div class="card" data-reveal>
+    <div class="card-head"><h3>{% icon c.category.icon 18 "text-brand" %} {{ c.code }} · {{ c.title }}</h3>{% status c %}</div>
+    <div class="card-body">
+      {% include "partials/tracker.html" %}
+      <div class="grid g2 mt-3">
+        <div class="photo-frame" data-clip><img src="{{ c.photo.url }}" alt="Reported photo"><span class="tag badge t-red solid">Before</span></div>
+        <div class="photo-frame" data-clip style="--d:.15s">{% if c.after_photo %}<img src="{{ c.after_photo.url }}" alt="After cleaning"><span class="tag badge t-green solid">After</span>{% else %}<div class="empty" style="padding:40px 10px"><h3>After photo pending</h3><p class="mb-0">It will appear here once the spot is cleaned.</p></div>{% endif %}</div>
+      </div>
+      <dl class="kv mt-3">
+        <dt>Category</dt><dd>{{ c.category.name }}</dd>
+        <dt>Ward</dt><dd>{{ c.ward }}</dd>
+        <dt>Filed</dt><dd>{{ c.created_at|date:"d M Y, h:i A" }}</dd>
+        {% if c.admin_note %}<dt>Team note</dt><dd>{{ c.admin_note }}</dd>{% endif %}
+      </dl>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

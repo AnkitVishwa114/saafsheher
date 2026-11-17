@@ -1,0 +1,12 @@
+{% load ss %}{% if messages %}
+{# PAGE: Pop-up success / error messages (Django messages). #}
+<div class="toasts" aria-live="polite">
+  {% for m in messages %}
+  <div class="toast {{ m.tags }}">
+    <span class="t-ico">{% if m.tags == "success" %}{% icon "check" 14 %}{% elif m.tags == "error" %}{% icon "x" 14 %}{% elif m.tags == "warning" %}{% icon "alert" 14 %}{% else %}{% icon "bell" 14 %}{% endif %}</span>
+    <span style="padding-top:2px">{{ m }}</span>
+    <button type="button" aria-label="Dismiss">{% icon "x" 15 %}</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

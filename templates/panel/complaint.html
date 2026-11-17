@@ -1,0 +1,86 @@
+{% extends "panel/base.html" %}
+{# PAGE: ADMIN: ONE COMPLAINT + change status | view: core/panel.py -> complaint | form: complaints/forms.py -> StatusForm #}
+{% load ss %}
+{% block title %}{{ c.code }}{% endblock %}
+{% block crumb %}Complaints · {{ c.code }}{% endblock %}
+{% block content %}
+<div class="page-head" style="padding-top:6px">
+  <div class="crumbs" data-reveal><a href="{% url 'panel:complaints' %}">Complaints</a> {% icon "chevron-right" 13 %} {{ c.code }}</div>
+  <div class="row">
+    <div><h1 data-words style="font-size:clamp(1.7rem,3vw,2.4rem)">{{ c.title }}</h1>
+      <div class="flex wrap mt-1" data-reveal><span class="chip">{{ c.code }}</span><span class="chip" style="background:{{ c.category.color }}1a;color:{{ c.category.color }}">{% icon c.category.icon 13 %} {{ c.category.name }}</span><span class="chip">{% icon "pin" 12 %} {{ c.ward }}</span><span class="chip pri-{{ c.priority }}">● {{ c.get_priority_display }}</span><span class="chip">{% icon "thumbs" 12 %} {{ votes }} upvote{{ votes|pluralize }}</span></div></div>
+    {% status c True %}
+  </div>
+</div>
+
+{% if c.is_overdue %}<div class="notice red mb-3" data-reveal>{% icon "clock" 20 %}<div><b>Overdue by {{ c.hours_left|cut:"-" }} hours</b><p>Target for {{ c.category.name|lower }} is {{ c.category.sla_hours }} hours. Please prioritise.</p></div></div>{% endif %}
+{% if c.status == "REOPENED" %}<div class="notice amber mb-3" data-reveal>{% icon "refresh" 20 %}<div><b>Reopened by the citizen</b><p>Check the latest timeline note for what is still wrong.</p></div></div>{% endif %}
+
+<div class="card card-body mb-3" data-reveal>{% include "partials/tracker.html" %}</div>
+
+<div class="grid g-side">
+  <div class="stack">
+    <div class="grid g2">
+      <div class="photo-frame" data-clip><img src="{{ c.photo.url }}" alt="Reported photo"><span class="tag badge t-red solid">Before</span></div>
+      <div class="photo-frame" data-clip style="--d:.15s">{% if c.after_photo %}<img src="{{ c.after_photo.url }}" alt="After"><span class="tag badge t-green solid">After</span>{% else %}<div class="empty" style="padding:30px 10px;display:grid;place-items:center;height:100%"><div>{% icon "camera" 30 "text-brand" %}<h3 class="mt-1">No after photo yet</h3><p class="mb-0 small">Required to mark as cleaned.</p></div></div>{% endif %}</div>
+    </div>
+    <div class="card" data-reveal>
+      <div class="card-head"><h3>{% icon "list" 18 "text-brand" %} Report</h3></div>
+      <div class="card-body">
+        <p style="white-space:pre-line">{{ c.description }}</p>
+        <dl class="kv">
+          <dt>Citizen</dt><dd>{{ c.user.display_name }} · <a class="text-brand" href="mailto:{{ c.user.email }}">{{ c.user.email }}</a>{% if c.user.phone %} · <a class="text-brand" href="tel:{{ c.user.phone }}">{{ c.user.phone }}</a>{% endif %}</dd>
+          <dt>Address</dt><dd>{{ c.address }}{% if c.landmark %} · near {{ c.landmark }}{% endif %} · {{ c.pincode }}</dd>
+          <dt>Location</dt><dd>{% if c.map_url %}<a class="text-brand" href="{{ c.map_url }}" target="_blank" rel="noopener">{{ c.latitude }}, {{ c.longitude }} {% icon "external" 13 %}</a>{% else %}<span class="muted">GPS not shared</span>{% endif %}</dd>
+          <dt>Filed</dt><dd>{{ c.created_at|date:"d M Y, h:i A" }}</dd>
+          <dt>Deadline</dt><dd>{{ c.due_at|date:"d M Y, h:i A" }} ({{ c.category.sla_hours }}h SLA)</dd>
+          {% if c.resolution_hours %}<dt>Cleaned in</dt><dd class="text-brand">{{ c.resolution_hours }} hours</dd>{% endif %}
+          {% if c.rating %}<dt>Citizen rating</dt><dd>{% stars c.rating 16 %} {% if c.feedback %}<span class="small muted">“{{ c.feedback }}”</span>{% endif %}</dd>{% endif %}
+        </dl>
+        {% if c.latitude %}<iframe class="map-frame show" title="Map" loading="lazy" src="{{ c.embed_map_url }}"></iframe>{% endif %}
+      </div>
+    </div>
+    {% if others %}
+    <div class="card" data-reveal>
+      <div class="card-head"><h3>{% icon "layers" 18 "text-brand" %} Similar open complaints in this ward</h3></div>
+      {% for o in others %}<a href="{{ o.get_admin_url }}" class="list-row"><img class="thumb" src="{{ o.photo.url }}" alt=""><div class="grow"><div class="t">{{ o.title }}</div><div class="s">{{ o.code }} · {{ o.created_at|timesince }} ago</div></div>{% status o %}</a>{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="stack sticky">
+    {% if c.next_moves %}
+    <div class="card" data-reveal>
+      <div class="card-head"><h3>{% icon "zap" 18 "text-brand" %} Take action</h3></div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data" novalidate class="stack" style="gap:14px">{% csrf_token %}
+          <div class="field {% if form.status.errors %}has-error{% endif %}"><label>Move to</label>
+            <div class="choice-cards" style="grid-template-columns:1fr">
+              {% for o in form.status %}<label style="flex-direction:row;align-items:center;padding:12px 14px">{{ o.tag }}<span class="ic" style="width:34px;height:34px;border-radius:11px;--c:{% if o.data.value == 'RESOLVED' %}#059669{% elif o.data.value == 'REJECTED' %}#E11D48{% else %}#F59E0B{% endif %}">{% if o.data.value == 'RESOLVED' %}{% icon "check" 17 %}{% elif o.data.value == 'REJECTED' %}{% icon "x" 17 %}{% else %}{% icon "truck" 17 %}{% endif %}</span><b>{{ o.choice_label }}</b></label>{% endfor %}
+            </div>
+            {% if form.status.errors %}<ul class="errors"><li>Choose what to do.</li></ul>{% endif %}
+          </div>
+          <div class="field {% if form.after_photo.errors %}has-error{% endif %}"><label>After photo <span class="tiny muted">(required for “Cleaned”)</span></label>{{ form.after_photo }}{% if form.after_photo.errors %}<ul class="errors">{% for e in form.after_photo.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}</div>
+          <div class="field {% if form.note.errors %}has-error{% endif %}"><label>Note to citizen</label>{{ form.note }}{% if form.note.errors %}<ul class="errors"><li>{{ form.note.errors.0 }}</li></ul>{% endif %}</div>
+          {% include "partials/field.html" with f=form.priority %}
+          <button class="btn btn-brand btn-block btn-lg" type="submit">{% icon "send" 17 %} Update & notify</button>
+        </form>
+      </div>
+    </div>
+    {% else %}
+    <div class="card card-pad center" data-reveal>{% if c.status == "RESOLVED" %}<h3 class="mt-1">Cleaned</h3><p class="small muted mb-0">The citizen can reopen within 7 days if needed.</p>{% else %}<h3 class="mt-1">Closed</h3><p class="small muted mb-0">This complaint was rejected.</p>{% endif %}</div>
+    {% endif %}
+    <div class="card" data-reveal>
+      <div class="card-head"><h3>{% icon "clock" 18 "text-brand" %} Timeline</h3></div>
+      <div class="card-body">
+        <ul class="timeline">
+          {% for u in updates %}
+          <li><span class="tl-dot">{% if u.status == "RESOLVED" %}{% icon "check" 16 "text-brand" %}{% elif u.status == "REJECTED" %}{% icon "x" 16 "text-red" %}{% elif u.status == "IN_PROGRESS" %}{% icon "truck" 16 "text-amber" %}{% elif u.status == "REOPENED" %}{% icon "refresh" 16 "text-coral" %}{% else %}{% icon "inbox" 16 "text-brand" %}{% endif %}</span>
+            <b>{{ u.get_status_display }}</b><div class="when">{{ u.created_at|date:"d M, h:i A" }}{% if u.by %} · {{ u.by.display_name }}{% endif %}</div>{% if u.note %}<div class="note">{{ u.note }}</div>{% endif %}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

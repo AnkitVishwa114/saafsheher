@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{# PAGE: WARD RANKING | view: core/views.py -> leaderboard (formula: ward_ranking) | URL: /leaderboard/ #}
+{% load ss %}
+{% block title %}Ward ranking{% endblock %}
+{% block content %}
+<section class="hero inner">
+  <div class="container narrow center">
+    <span class="kicker" data-reveal>Ward ranking</span>
+    <h1 data-words style="font-size:clamp(2.4rem,5.4vw,4.2rem)">The cleanest <em>wards.</em></h1>
+    <p class="lead" data-reveal style="margin:16px auto 0">Ranked by the share of complaints that were actually cleaned. Fewer open complaints breaks a tie.</p>
+  </div>
+</section>
+<div class="bands mini" aria-hidden="true"><div class="band one"><div class="band-track">{% for r in "12" %}{% for w in wards|slice:":6" %}<span{% if forloop.counter|divisibleby:2 %} class="o"{% endif %}>{% if forloop.counter == 1 %}<em>{{ w.name }}</em>{% else %}{{ w.name }}{% endif %}</span>{% endfor %}{% endfor %}</div></div></div>
+<div class="container mid pb" style="padding-top:20px">
+  {% with p=wards|slice:":3" %}{% if p|length == 3 %}
+  <div class="podium">
+    {% with w=p.1 %}<div class="pod p2"><div class="medal">2</div><b>{{ w.name }}</b><span class="z">Ward {{ w.number }} · {{ w.zone }}</span><div class="sc">{% if w.score is not None %}<span data-count="{{ w.score }}">{{ w.score }}</span><small>%</small>{% else %}—{% endif %}</div><div class="base" style="--h:70px">2</div></div>{% endwith %}
+    {% with w=p.0 %}<div class="pod p1"><div class="medal">1</div><b>{{ w.name }}</b><span class="z">Ward {{ w.number }} · {{ w.zone }}</span><div class="sc">{% if w.score is not None %}<span data-count="{{ w.score }}">{{ w.score }}</span><small>%</small>{% else %}—{% endif %}</div><div class="base" style="--h:110px">1</div></div>{% endwith %}
+    {% with w=p.2 %}<div class="pod p3"><div class="medal">3</div><b>{{ w.name }}</b><span class="z">Ward {{ w.number }} · {{ w.zone }}</span><div class="sc">{% if w.score is not None %}<span data-count="{{ w.score }}">{{ w.score }}</span><small>%</small>{% else %}—{% endif %}</div><div class="base" style="--h:46px">3</div></div>{% endwith %}
+  </div>
+  {% endif %}{% endwith %}
+  <div class="rank">
+    {% for w in wards %}
+      <div class="rank-row">
+        <span class="pos">{{ forloop.counter }}</span>
+        <div>
+          <b>Ward {{ w.number }} · {{ w.name }}</b> <span class="tiny muted strong">{{ w.zone }} zone</span>
+          {% if w.total %}<div class="bar-line mt-1"><i data-w="{{ w.score }}"></i></div><div class="tiny muted strong mt-1">{{ w.resolved }} cleaned · {{ w.open }} open · {{ w.total }} total</div>{% else %}<div class="tiny muted strong mt-1">No complaints yet</div>{% endif %}
+        </div>
+        <b class="text-brand" style="font-size:1.4rem;letter-spacing:-0.03em">{% if w.score is not None %}{{ w.score }}%{% else %}—{% endif %}</b>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

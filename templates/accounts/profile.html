@@ -1,0 +1,56 @@
+{% extends base_template|default:"base.html" %}
+{# PAGE: PROFILE & PASSWORD | view: accounts/views.py -> profile | forms: ProfileForm + Django PasswordChangeForm | URL: /accounts/profile/ #}
+{% load ss %}
+{% block title %}Profile{% endblock %}
+{% block crumb %}Profile{% endblock %}
+{% block content %}
+<div class="container mid pb">
+  <div class="page-head"><span class="kicker" data-reveal>Account</span><h1 data-words>Your profile</h1><p data-reveal>Update your details and keep your password strong.</p></div>
+  <div class="grid g-side">
+    <div class="stack">
+      <div class="card" data-reveal>
+        <div class="card-head"><h3>{% icon "user" 18 "text-brand" %} Personal details</h3></div>
+        <div class="card-body">
+          <form method="post" novalidate>{% csrf_token %}
+            <div class="form-grid">
+              {% include "partials/field.html" with f=pform.first_name %}
+              {% include "partials/field.html" with f=pform.last_name %}
+              {% include "partials/field.html" with f=pform.phone %}
+              {% include "partials/field.html" with f=pform.ward %}
+              <div class="field full"><label>Email</label><input type="text" value="{{ user.email }}" disabled><span class="help">Email is your login and can't be changed.</span></div>
+            </div>
+            <div class="form-actions"><button class="btn btn-brand" name="save_profile" type="submit">{% icon "check" 16 %} Save details</button></div>
+          </form>
+        </div>
+      </div>
+      <div class="card" data-reveal>
+        <div class="card-head"><h3>{% icon "lock" 18 "text-brand" %} Change password</h3></div>
+        <div class="card-body">
+          <form method="post" novalidate>{% csrf_token %}
+            {% if pwform.non_field_errors %}<div class="form-errors">{% icon "alert" 18 %}<span>{{ pwform.non_field_errors.0 }}</span></div>{% endif %}
+            <div class="form-grid">
+              {% include "partials/field.html" with f=pwform.old_password full=1 %}
+              {% include "partials/field.html" with f=pwform.new_password1 full=1 %}
+              {% include "partials/field.html" with f=pwform.new_password2 full=1 %}
+            </div>
+            <div class="form-actions"><button class="btn" name="change_password" type="submit">{% icon "shield" 16 %} Update password</button></div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="card card-pad center sticky" data-reveal style="position:relative">
+      <span class="avatar lg" style="--h:{{ user.hue }};margin:0 auto 14px">{{ user.initials }}</span>
+      <h3>{{ user.display_name }}</h3>
+      <p class="small muted">{{ user.get_role_display }}{% if user.ward %} · {{ user.ward }}{% endif %}</p>
+      {% if stats %}
+      <div class="grid g3 mt-2" style="gap:8px">
+        <div><div class="strong display" style="font-size:1.6rem" data-count="{{ stats.total }}">{{ stats.total }}</div><div class="tiny muted">Filed</div></div>
+        <div><div class="strong display text-brand" style="font-size:1.6rem" data-count="{{ stats.resolved }}">{{ stats.resolved }}</div><div class="tiny muted">Cleaned</div></div>
+        <div><div class="strong display" style="font-size:1.6rem" data-count="{{ stats.upvotes }}">{{ stats.upvotes }}</div><div class="tiny muted">Upvotes</div></div>
+      </div>
+      {% endif %}
+      <p class="tiny muted mt-2 mb-0">Member since {{ user.date_joined|date:"M Y" }}</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

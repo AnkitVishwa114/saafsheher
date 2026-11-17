@@ -1,0 +1,9 @@
+{% load ss %}
+{# PAGE: Bottom TAB BAR shown to citizens on mobile (Home, Around me, Report, Mine, Alerts). #}
+<nav class="tabbar" aria-label="App navigation">
+  <a href="{% url 'core:dashboard' %}" class="{% active 'core:dashboard' %}">{% icon "home" 21 %}Home</a>
+  <a href="{% url 'complaints:feed' %}" class="{% active 'complaints:feed' %}">{% icon "map" 21 %}Around me</a>
+  <a href="{% url 'complaints:new' %}" class="plus" aria-label="Report a problem"><span>{% icon "camera" 22 %}</span></a>
+  <a href="{% url 'complaints:mine' %}" class="{% active 'complaints:mine' 'complaints:detail' %}">{% icon "list" 21 %}Mine</a>
+  <a href="{% url 'accounts:notifications' %}" class="{% active 'accounts:notifications' %}">{% icon "bell" 21 %}Alerts{% if unread_count %}<i class="badge-dot"></i>{% endif %}</a>
+</nav>
