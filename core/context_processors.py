@@ -4,8 +4,18 @@
 # and which base layout to use (admin panel layout or citizen layout).
 # =============================================================================
 # Runs for every page. Admin -> open/new/overdue counts for the sidebar. Citizen -> my filed/open/cleaned.
+def _asset_version():
+    # Version number for CSS/JS links (?v=...). It changes whenever app.css or app.js changes,
+    # so browsers always download the new file instead of using an old cached copy.
+    from django.conf import settings
+    try:
+        return int(max((settings.BASE_DIR / "static" / f).stat().st_mtime for f in ("css/app.css", "js/app.js")))
+    except OSError:
+        return 1
+
+
 def site(request):
-    ctx = {"SITE_NAME": "SaafShehar", "SITE_TAGLINE": "Photo kheencho, shehar saaf karo"}
+    ctx = {"SITE_NAME": "SaafShehar", "SITE_TAGLINE": "Photo kheencho, shehar saaf karo", "ASSET_V": _asset_version()}
     user = getattr(request, "user", None)
     if user and user.is_authenticated:
         from complaints.models import Complaint

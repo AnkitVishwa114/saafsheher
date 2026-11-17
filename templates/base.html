@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v={{ ASSET_V }}">
   {% block head %}{% endblock %}
 </head>
 <body class="{% if user.is_authenticated and not user.is_admin_role %}has-tabbar{% endif %} {% block body_class %}{% endblock %}">
@@ -26,7 +26,7 @@
   {% if user.is_authenticated and not user.is_admin_role %}{% include "partials/tabbar.html" %}{% endif %}
   <script src="{% static 'vendor/gsap.min.js' %}" defer></script>
   <script src="{% static 'vendor/ScrollTrigger.min.js' %}" defer></script>
-  <script src="{% static 'js/app.js' %}" defer></script>
+  <script src="{% static 'js/app.js' %}?v={{ ASSET_V }}" defer></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

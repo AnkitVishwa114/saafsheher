@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v={{ ASSET_V }}">
 </head>
 <body class="panel-body">
   {% include "partials/messages.html" %}
@@ -101,7 +101,7 @@
   </div>
 
   <script src="{% static 'vendor/chart.umd.min.js' %}"></script>
-  <script src="{% static 'js/app.js' %}"></script>
+  <script src="{% static 'js/app.js' %}?v={{ ASSET_V }}"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

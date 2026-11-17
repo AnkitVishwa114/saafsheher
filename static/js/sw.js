@@ -1,5 +1,5 @@
 // Service worker: makes the site installable and keeps static files available offline.
-const CACHE = "saafshehar-v2";
+const CACHE = "saafshehar-v3";
 const ASSETS = ["/static/css/app.css", "/static/js/app.js", "/static/img/logo.svg"];
 
 self.addEventListener("install", (e) => {
@@ -15,6 +15,6 @@ self.addEventListener("fetch", (e) => {
   e.respondWith(
     fetch(e.request)
       .then((res) => { if (res.ok) caches.open(CACHE).then((c) => c.put(e.request, res.clone())); return res; })
-      .catch(() => caches.match(e.request))
+      .catch(() => caches.match(e.request, { ignoreSearch: true }))
   );
 });
